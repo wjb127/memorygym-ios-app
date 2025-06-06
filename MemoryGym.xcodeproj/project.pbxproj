@@ -22,38 +22,38 @@
 		BA2F6DBE569EEA81197D22EF /* SubjectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B96EA3D9ED58F953E5EA7A3 /* SubjectService.swift */; };
 		C1CF2CD16A9132DE71A9A558 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 40BCBEC95AC60E8F6D8650D9 /* Preview Assets.xcassets */; };
 		CB63D5662A492A7D0D895D77 /* FlashcardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D8A5D61306925B5332F5541 /* FlashcardService.swift */; };
-		E903AD6EABDFAD1936983641 /* Pods_MemoryGym.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2FE06B168E90EE7F52AE9B8 /* Pods_MemoryGym.framework */; };
+		F6BC1F323FB1D7D7091DE48A /* Pods_MemoryGym.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75F085E8C0BEE20C47818CDD /* Pods_MemoryGym.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		120D7C2C0AF6E59C8CE20BBE /* AddEditFlashcardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditFlashcardView.swift; sourceTree = "<group>"; };
-		23D72AFEB7002C361E814429 /* Pods-MemoryGym.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MemoryGym.release.xcconfig"; path = "Target Support Files/Pods-MemoryGym/Pods-MemoryGym.release.xcconfig"; sourceTree = "<group>"; };
 		2C42138A1C4FB4295EC2EDDD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2F95422980F173092ADE12EC /* Flashcard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Flashcard.swift; sourceTree = "<group>"; };
 		31A516B1C0E0877F10DD359B /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
+		39C6E46FF71E794E1161D218 /* Pods-MemoryGym.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MemoryGym.debug.xcconfig"; path = "Target Support Files/Pods-MemoryGym/Pods-MemoryGym.debug.xcconfig"; sourceTree = "<group>"; };
 		3B96EA3D9ED58F953E5EA7A3 /* SubjectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectService.swift; sourceTree = "<group>"; };
 		40BCBEC95AC60E8F6D8650D9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		4457A653B9D450B4DDA7B2EE /* MemoryGymApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryGymApp.swift; sourceTree = "<group>"; };
 		5D8A5D61306925B5332F5541 /* FlashcardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardService.swift; sourceTree = "<group>"; };
 		62B079173CACDF6284E5B969 /* AddEditSubjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditSubjectView.swift; sourceTree = "<group>"; };
+		75F085E8C0BEE20C47818CDD /* Pods_MemoryGym.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MemoryGym.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DDC87CFA608F6176D575281 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		8CE69016D5985D2050A6A512 /* Pods-MemoryGym.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MemoryGym.debug.xcconfig"; path = "Target Support Files/Pods-MemoryGym/Pods-MemoryGym.debug.xcconfig"; sourceTree = "<group>"; };
 		954590A81A37BE6176D7B0C5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A265A8789D20EAAA30085DBD /* MemoryGym.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MemoryGym.entitlements; sourceTree = "<group>"; };
 		AAF84999567118255FB2CA1E /* Subject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subject.swift; sourceTree = "<group>"; };
-		C2FE06B168E90EE7F52AE9B8 /* Pods_MemoryGym.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MemoryGym.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D22F9D34237FDD93129B58EF /* VocabularyData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyData.swift; sourceTree = "<group>"; };
+		D99D71CDEF33D45905A5353D /* Pods-MemoryGym.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MemoryGym.release.xcconfig"; path = "Target Support Files/Pods-MemoryGym/Pods-MemoryGym.release.xcconfig"; sourceTree = "<group>"; };
 		E2E402591DA780FC0A560DAC /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		E41A89B7045BBC23B6DA5E1D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FDE7C6B31D9BD30A46B6C5DF /* MemoryGym.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MemoryGym.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		C96E9D62E3BECA6B133DC1FE /* Frameworks */ = {
+		E8D85219C3FA278B732B376D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E903AD6EABDFAD1936983641 /* Pods_MemoryGym.framework in Frameworks */,
+				F6BC1F323FB1D7D7091DE48A /* Pods_MemoryGym.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,11 +78,19 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		28FD5775EF7C5C818DF195D6 /* Pods */ = {
+		3A58FC1F30CF2A8BF47296A4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				8CE69016D5985D2050A6A512 /* Pods-MemoryGym.debug.xcconfig */,
-				23D72AFEB7002C361E814429 /* Pods-MemoryGym.release.xcconfig */,
+				75F085E8C0BEE20C47818CDD /* Pods_MemoryGym.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4EB8A15A7469DC1628C0444C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				39C6E46FF71E794E1161D218 /* Pods-MemoryGym.debug.xcconfig */,
+				D99D71CDEF33D45905A5353D /* Pods-MemoryGym.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -150,14 +158,6 @@
 			path = Subject;
 			sourceTree = "<group>";
 		};
-		D36E75DF2CCAD225152BD3A4 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				C2FE06B168E90EE7F52AE9B8 /* Pods_MemoryGym.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		E16C73178E9CA622610511FB = {
 			isa = PBXGroup;
 			children = (
@@ -168,8 +168,8 @@
 				C63BF314384735241D50C8D2 /* Services */,
 				00460AA9F89BCF8F6D0A0D64 /* Views */,
 				824F3A8E361CDCF252F9ED89 /* Products */,
-				28FD5775EF7C5C818DF195D6 /* Pods */,
-				D36E75DF2CCAD225152BD3A4 /* Frameworks */,
+				4EB8A15A7469DC1628C0444C /* Pods */,
+				3A58FC1F30CF2A8BF47296A4 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -188,11 +188,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A22D8AFB4D3D5B0D0E29D938 /* Build configuration list for PBXNativeTarget "MemoryGym" */;
 			buildPhases = (
-				9B23EC13684E48779E60B30E /* [CP] Check Pods Manifest.lock */,
+				A218081ACE7F2132A68E8EAB /* [CP] Check Pods Manifest.lock */,
 				3BF7A10E16C75597300DE0D4 /* Sources */,
 				4D1896C635ABE06A1FF11C7B /* Resources */,
-				C96E9D62E3BECA6B133DC1FE /* Frameworks */,
-				8B5F5C101A20FAD86ABF47BC /* [CP] Embed Pods Frameworks */,
+				E8D85219C3FA278B732B376D /* Frameworks */,
+				36A9DF3F540C9E95DC76FF2B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -252,7 +252,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		8B5F5C101A20FAD86ABF47BC /* [CP] Embed Pods Frameworks */ = {
+		36A9DF3F540C9E95DC76FF2B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -269,7 +269,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MemoryGym/Pods-MemoryGym-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9B23EC13684E48779E60B30E /* [CP] Check Pods Manifest.lock */ = {
+		A218081ACE7F2132A68E8EAB /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -318,7 +318,7 @@
 /* Begin XCBuildConfiguration section */
 		15CE41F7D4BE7CE2A56E7085 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8CE69016D5985D2050A6A512 /* Pods-MemoryGym.debug.xcconfig */;
+			baseConfigurationReference = 39C6E46FF71E794E1161D218 /* Pods-MemoryGym.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MemoryGym.entitlements;
@@ -459,7 +459,7 @@
 		};
 		FB736D392FDCB9C4E8C70970 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 23D72AFEB7002C361E814429 /* Pods-MemoryGym.release.xcconfig */;
+			baseConfigurationReference = D99D71CDEF33D45905A5353D /* Pods-MemoryGym.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MemoryGym.entitlements;

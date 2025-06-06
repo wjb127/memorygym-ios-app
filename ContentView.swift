@@ -75,16 +75,7 @@ struct MemoryTrainingView: View {
                     }
                 }
                 .navigationBarHidden(authManager.isSignedIn) // 로그인 시 네비게이션 바 숨김
-                .toolbar {
-                    // 게스트 모드일 때만 툴바 표시
-                    if !authManager.isSignedIn {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("로그인") {
-                                showLoginSheet = true
-                            }
-                        }
-                    }
-                }
+                .navigationTitle(authManager.isSignedIn ? "" : "암기훈련소")
             }
             .sheet(isPresented: $showAddEditSubjectSheet) {
                 AddEditSubjectView(subjectToEdit: subjectToEdit, subjectService: subjectService)
