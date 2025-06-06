@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseCore
+import GoogleSignIn
 
 @main
 struct MemoryGymApp: App {
@@ -7,7 +8,15 @@ struct MemoryGymApp: App {
     @State private var showSplash = true
     
     init() {
+        // Firebase 초기화
         FirebaseApp.configure()
+        
+        // Google Sign-In 설정
+        if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+           let plist = NSDictionary(contentsOfFile: path),
+           let clientID = plist["CLIENT_ID"] as? String {
+            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        }
     }
     
     var body: some Scene {
@@ -25,6 +34,9 @@ struct MemoryGymApp: App {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     showSplash = false
                 }
+            }
+            .onOpenURL { url in
+                GIDSignIn.sharedInstance.handle(url)
             }
         }
     }
@@ -49,7 +61,7 @@ struct SplashView: View {
     }
 }
 
-// MARK: - App State
+// MARK: - App State (사용하지 않음 - 호환성을 위해 유지)
 @MainActor
 class AppState: ObservableObject {
     @Published var showSplash = true
@@ -57,7 +69,6 @@ class AppState: ObservableObject {
     @Published var isGuestMode = false
     
     init() {
-        // 스플래시 화면을 2초간 표시
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.showSplash = false
         }

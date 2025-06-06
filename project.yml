@@ -9,14 +9,6 @@ settings:
   DEVELOPMENT_TEAM: "9Q26686S8R"
   CODE_SIGN_STYLE: Automatic
 
-packages:
-  Firebase:
-    url: https://github.com/firebase/firebase-ios-sdk
-    majorVersion: 10.0.0
-  GoogleSignIn:
-    url: https://github.com/google/GoogleSignIn-iOS
-    majorVersion: 7.0.0
-
 targets:
   MemoryGym:
     type: application
@@ -28,32 +20,14 @@ targets:
           - "Assets.xcassets"
           - "Preview Content"
           - "GoogleService-Info.plist"
+          - "MemoryGym.entitlements"
         excludes:
           - "*.md"
           - "*.py"
           - "project.yml"
           - ".git"
           - ".vscode"
-    dependencies:
-      - package: Firebase
-        product: FirebaseAnalytics
-      - package: Firebase
-        product: FirebaseAuth
-      - package: Firebase
-        product: FirebaseFirestore
-      - package: Firebase
-        product: FirebaseStorage
-      - package: GoogleSignIn
-        product: GoogleSignIn
-    info:
-      path: Info.plist
-      properties:
-        CFBundleDisplayName: MemoryGym
-        CFBundleIdentifier: com.memorygym.app
-        CFBundleVersion: "1"
-        CFBundleShortVersionString: "1.0"
-        UILaunchStoryboardName: LaunchScreen
-        UISupportedInterfaceOrientations:
-          - UIInterfaceOrientationPortrait
-        UIRequiredDeviceCapabilities:
-          - armv7 
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.memorygym.app
+      INFOPLIST_FILE: Info.plist
+      CODE_SIGN_ENTITLEMENTS: MemoryGym.entitlements 
