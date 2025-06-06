@@ -19,6 +19,11 @@ struct ContentView: View {
                 .tabItem {
                     Label("통계", systemImage: "chart.bar.xaxis")
                 }
+            
+            SettingsView()
+                .tabItem {
+                    Label("설정", systemImage: "gearshape.fill")
+                }
         }
     }
 }
@@ -117,21 +122,6 @@ struct MemoryTrainingView: View {
                 showAddEditSubjectSheet = true
             }) {
                 Image(systemName: "plus.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(.blue)
-            }
-            
-            // 프로필 메뉴
-            Menu {
-                if let user = authManager.user {
-                    Text(user.displayName ?? "사용자").font(.subheadline)
-                }
-                Button("로그아웃", role: .destructive) {
-                    authManager.signOut()
-                    selectedSubject = nil
-                }
-            } label: {
-                Image(systemName: "person.circle.fill")
                     .font(.title2)
                     .foregroundColor(.blue)
             }
@@ -638,6 +628,152 @@ struct StatisticsView: View {
             .padding()
             .navigationTitle("통계")
         }
+    }
+}
+
+/// 4. 설정 탭
+struct SettingsView: View {
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var showLoginSheet = false
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                if authManager.isSignedIn {
+                    loggedInSettingsView
+                } else {
+                    guestSettingsView
+                }
+            }
+            .navigationTitle("설정")
+        }
+        .sheet(isPresented: $showLoginSheet) {
+            LoginView()
+                .environmentObject(authManager)
+        }
+    }
+    
+    // MARK: - Logged-In Settings
+    @ViewBuilder
+    private var loggedInSettingsView: some View {
+        List {
+            // 프로필 섹션
+            Section {
+                HStack(spacing: 16) {
+                    Image(systemName: "person.circle.fill")
+                        .font(.system(size: 50))
+                        .foregroundColor(.blue)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(authManager.user?.displayName ?? "사용자")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                        Text(authManager.user?.email ?? "이메일 없음")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.vertical, 8)
+            }
+            
+            // 앱 정보 섹션
+            Section("앱 정보") {
+                SettingsRowView(icon: "info.circle", title: "버전", detail: "1.0.0")
+                SettingsRowView(icon: "envelope", title: "문의하기", detail: nil) {
+                    // TODO: 문의하기 기능
+                }
+                SettingsRowView(icon: "star", title: "앱 평가하기", detail: nil) {
+                    // TODO: 앱 평가 기능
+                }
+            }
+            
+            // 로그아웃 섹션
+            Section {
+                Button(action: {
+                    authManager.signOut()
+                }) {
+                    HStack {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .foregroundColor(.red)
+                            .frame(width: 24)
+                        Text("로그아웃")
+                            .foregroundColor(.red)
+                        Spacer()
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Guest Settings
+    @ViewBuilder
+    private var guestSettingsView: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            
+            Image(systemName: "person.crop.circle.badge.questionmark")
+                .font(.system(size: 80))
+                .foregroundColor(.gray)
+            
+            Text("로그인 필요")
+                .font(.title)
+                .fontWeight(.bold)
+            
+            Text("모든 기능을 사용하려면 로그인이 필요합니다.")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            
+            Button("로그인 하러 가기") {
+                showLoginSheet = true
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            
+            Spacer()
+        }
+        .padding()
+    }
+}
+
+// MARK: - Settings Row View
+private struct SettingsRowView: View {
+    let icon: String
+    let title: String
+    let detail: String?
+    var action: (() -> Void)?
+    
+    var body: some View {
+        Button(action: {
+            action?()
+        }) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(.blue)
+                    .frame(width: 24)
+                
+                Text(title)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                if let detail = detail {
+                    Text(detail)
+                        .foregroundColor(.secondary)
+                        .font(.subheadline)
+                }
+                
+                if action != nil {
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .disabled(action == nil)
     }
 }
 
