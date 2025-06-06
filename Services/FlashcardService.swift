@@ -154,6 +154,71 @@ class FlashcardService: ObservableObject {
         }
     }
     
+    /// 특정 난이도의 플래시카드들을 조회 (훈련용)
+    func fetchFlashcardsForTraining(subjectID: String, userID: String, difficulty: Int) async throws -> [Flashcard] {
+        print("🎯 훈련용 플래시카드 조회 시작")
+        print("   ➤ 사용자 ID: '\(userID)'")
+        print("   ➤ 과목 ID: '\(subjectID)'")
+        print("   ➤ 난이도: \(difficulty)")
+        
+        let querySnapshot = try await flashcardsCollectionRef
+            .whereField("userId", isEqualTo: userID)
+            .whereField("subjectId", isEqualTo: subjectID)
+            .whereField("difficulty", isEqualTo: difficulty)
+            .getDocuments()
+        
+        let flashcards = querySnapshot.documents.compactMap { document -> Flashcard? in
+            do {
+                return try document.data(as: Flashcard.self)
+            } catch {
+                print("❌ 플래시카드 파싱 실패: \(error)")
+                return nil
+            }
+        }
+        
+        print("🎯 훈련용 플래시카드 조회 완료: \(flashcards.count)개")
+        return flashcards
+    }
+    
+    /// 플래시카드의 난이도 업데이트
+    func updateFlashcardDifficulty(flashcardID: String, isCorrect: Bool) async throws {
+        guard !flashcardID.isEmpty else {
+            throw NSError(domain: "FlashcardService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid flashcard ID"])
+        }
+        
+        let docRef = flashcardsCollectionRef.document(flashcardID)
+        
+        // 현재 플래시카드 정보 조회
+        let document = try await docRef.getDocument()
+        guard let currentFlashcard = try? document.data(as: Flashcard.self) else {
+            throw NSError(domain: "FlashcardService", code: 0, userInfo: [NSLocalizedDescriptionKey: "플래시카드를 찾을 수 없습니다"])
+        }
+        
+        let currentDifficulty = currentFlashcard.difficulty
+        let newDifficulty: Int
+        let now = Date()
+        
+        if isCorrect {
+            // 정답: difficulty +1 (최대 5)
+            newDifficulty = min(currentDifficulty + 1, 5)
+            print("✅ 정답 처리: difficulty \(currentDifficulty) -> \(newDifficulty)")
+        } else {
+            // 오답: difficulty를 1로 초기화
+            newDifficulty = 1
+            print("❌ 오답 처리: difficulty \(currentDifficulty) -> \(newDifficulty)")
+        }
+        
+        // 업데이트할 데이터
+        let updateData: [String: Any] = [
+            "difficulty": newDifficulty,
+            "reviewCount": currentFlashcard.reviewCount + 1,
+            "lastReviewed": Timestamp(date: now)
+        ]
+        
+        try await docRef.updateData(updateData)
+        print("🔄 플래시카드 업데이트 완료: \(currentFlashcard.front)")
+    }
+    
     // 리스너 해제
     deinit {
         listenerRegistration?.remove()

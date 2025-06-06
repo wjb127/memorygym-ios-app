@@ -795,6 +795,7 @@ struct TrainingLevelSelectionView: View {
     
     let subject: Subject
     @State private var selectedLevel: Int = 1
+    @State private var showTrainingView = false
     
     var body: some View {
         NavigationView {
@@ -860,13 +861,16 @@ struct TrainingLevelSelectionView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $showTrainingView) {
+            TrainingView(subject: subject, difficulty: selectedLevel)
+                .environmentObject(authManager)
+        }
     }
     
     private func startTraining(level: Int) {
-        // TODO: 선택된 난이도의 암기 훈련 시작
         print("🎯 \(subject.name) - \(level)단계 훈련 시작!")
         print("   ➤ 난이도 \(level) 플래시카드로 훈련 진행")
-        dismiss()
+        showTrainingView = true
     }
 }
 
