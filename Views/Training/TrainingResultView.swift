@@ -63,7 +63,7 @@ struct TrainingResultView: View {
                     Text(subject.name)
                         .font(.headline)
                         .foregroundColor(.blue)
-                    Text("\(difficulty)단계 훈련소")
+                    Text("Lv\(difficulty) 훈련소")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }

@@ -612,10 +612,12 @@ private struct FlashcardRowView: View {
     
     private var difficultyInfo: (String, Color) {
         switch flashcard.difficulty {
-        case 1: return ("쉬움", .green)
-        case 2: return ("보통", .orange)
-        case 3: return ("어려움", .red)
-        default: return ("보통", .gray)
+        case 1: return ("Lv1", .red)        // 가장 어려움 (많은 반복 필요)
+        case 2: return ("Lv2", .orange)     // 어려움
+        case 3: return ("Lv3", .yellow)     // 보통
+        case 4: return ("Lv4", .mint)       // 쉬움
+        case 5: return ("Lv5", .green)      // 가장 쉬움 (적은 반복 필요)
+        default: return ("Lv1", .gray)
         }
     }
 }
@@ -885,7 +887,7 @@ private struct TrainingLevelRow: View {
         Button(action: action) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("\(level)단계 훈련소")
+                    Text("Lv\(level) 훈련소")
                         .font(.headline)
                         .fontWeight(.semibold)
                     
@@ -925,12 +927,12 @@ private struct TrainingLevelRow: View {
     
     private var levelDescription: String {
         switch level {
-        case 1: return "가장 쉬운 문제들로 기초 실력 향상"
-        case 2: return "약간의 도전이 있는 문제들"
-        case 3: return "중간 난이도의 문제들"
-        case 4: return "어려운 문제들로 실력 향상"
-        case 5: return "가장 어려운 문제들로 최고 수준 도달"
-        default: return "일반 난이도"
+        case 1: return "Lv1 문제들 (많은 연습이 필요한 어려운 문제)"
+        case 2: return "Lv2 문제들 (연습이 필요한 문제)"
+        case 3: return "Lv3 문제들 (보통 수준의 문제)"
+        case 4: return "Lv4 문제들 (익숙한 문제)"
+        case 5: return "Lv5 문제들 (잘 아는 쉬운 문제)"
+        default: return "일반 문제"
         }
     }
     
@@ -948,12 +950,12 @@ private struct TrainingLevelRow: View {
     
     private var difficultyInfo: (String, Color) {
         switch level {
-        case 1: return ("입문", .green)
-        case 2: return ("초급", .mint)
-        case 3: return ("중급", .orange)
-        case 4: return ("고급", .red)
-        case 5: return ("최고급", .purple)
-        default: return ("보통", .gray)
+        case 1: return ("Lv1", .red)        // 가장 어려움 (많은 반복 필요)
+        case 2: return ("Lv2", .orange)     // 어려움
+        case 3: return ("Lv3", .yellow)     // 보통
+        case 4: return ("Lv4", .mint)       // 쉬움
+        case 5: return ("Lv5", .green)      // 가장 쉬움 (적은 반복 필요)
+        default: return ("Lv1", .gray)
         }
     }
 } 

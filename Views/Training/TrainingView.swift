@@ -63,7 +63,7 @@ struct TrainingView: View {
                     }
                 }
             }
-            .navigationTitle("\(difficulty)단계 훈련소")
+            .navigationTitle("Lv\(difficulty) 훈련소")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -109,7 +109,7 @@ struct TrainingView: View {
             Text("훈련할 문제가 없습니다")
                 .font(.title2)
                 .fontWeight(.semibold)
-            Text("\(difficulty)단계 난이도의 문제가 없어요.\n다른 단계를 선택해주세요.")
+            Text("Lv\(difficulty) 문제가 없어요.\n다른 레벨을 선택해주세요.")
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
             Button("닫기") {
