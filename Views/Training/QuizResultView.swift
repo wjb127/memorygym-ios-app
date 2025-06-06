@@ -41,12 +41,12 @@ struct QuizResultView: View {
                         
                         Spacer()
                     }
-                    .frame(height: geometry.size.height * 0.4)
+                    .frame(height: geometry.size.height * 0.35)
                     
                     // 하단 정보 섹션
                     VStack(spacing: 0) {
                         // 정보 카드들
-                        VStack(spacing: 16) {
+                        VStack(spacing: 12) {
                             // 문제 카드
                             InfoCard(
                                 title: "문제",
@@ -74,11 +74,11 @@ struct QuizResultView: View {
                             }
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 30)
+                        .padding(.top, 20)
                         
                         Spacer()
                         
-                        // 다음 문제 버튼
+                        // 다음 문제 버튼 (TrainingView와 동일한 위치)
                         Button(action: onNext) {
                             HStack(spacing: 12) {
                                 Image(systemName: "arrow.right.circle.fill")
@@ -103,7 +103,7 @@ struct QuizResultView: View {
                         .padding(.horizontal, 20)
                         .padding(.bottom, 40)
                     }
-                    .frame(height: geometry.size.height * 0.6)
+                    .frame(height: geometry.size.height * 0.65)
                     .background(
                         Color(.systemBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 30))
@@ -143,7 +143,7 @@ private struct InfoCard: View {
                 Spacer()
             }
         }
-        .padding(20)
+        .padding(16)
         .background(backgroundColor)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
