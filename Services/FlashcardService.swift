@@ -13,15 +13,18 @@ class FlashcardService: ObservableObject {
     
     private var listenerRegistration: ListenerRegistration?
     
-    /// 특정 과목의 플래시카드 조회
-    func fetchFlashcards(forSubjectID subjectID: String) {
-        print("🃏 플래시카드 조회 시작 - 과목 ID: \(subjectID)")
+    /// 특정 과목의 플래시카드들을 실시간으로 조회
+    func fetchFlashcards(forSubjectID subjectID: String, userID: String) {
+        print("🃏 플래시카드 조회 시작")
+        print("   ➤ 사용자 ID: '\(userID)'")
+        print("   ➤ 과목 ID: '\(subjectID)'")
         
+        // 중복 리스너 방지
         listenerRegistration?.remove()
         
         listenerRegistration = flashcardsCollectionRef
+            .whereField("userId", isEqualTo: userID)
             .whereField("subjectId", isEqualTo: subjectID)
-            .order(by: "createdAt", descending: false)
             .addSnapshotListener { [weak self] (querySnapshot, error) in
                 guard let self = self else { return }
                 
@@ -31,43 +34,40 @@ class FlashcardService: ObservableObject {
                 }
                 
                 guard let documents = querySnapshot?.documents else {
-                    print("📭 플래시카드 문서 없음 - 과목 ID: \(subjectID)")
+                    print("📭 쿼리 결과: 플래시카드 없음")
                     self.flashcards = []
                     return
                 }
                 
-                print("📄 조회된 플래시카드 문서 개수: \(documents.count)")
+                print("🃏 쿼리 결과: \(documents.count)개 플래시카드 발견")
                 
                 let flashcards = documents.compactMap { document -> Flashcard? in
                     do {
                         let flashcard = try document.data(as: Flashcard.self)
                         return flashcard
                     } catch {
-                        print("❌ 플래시카드 파싱 실패 - 문서 ID: \(document.documentID)")
+                        print("❌ 플래시카드 파싱 실패 - 문서 ID: \(document.documentID), 오류: \(error)")
                         return nil
                     }
                 }
                 
                 self.flashcards = flashcards
-                print("🃏 최종 로드된 플래시카드 수: \(self.flashcards.count)")
+                print("🎯 최종 결과: \(self.flashcards.count)개 플래시카드 로드 완료")
             }
     }
     
-    /// 플래시카드 생성
-    func createFlashcard(_ flashcard: Flashcard) async throws {
-        _ = try flashcardsCollectionRef.addDocument(from: flashcard)
-        print("✅ 플래시카드 생성 완료: \(flashcard.front) - \(flashcard.back)")
-    }
-    
-    /// 여러 플래시카드 일괄 생성
-    func createFlashcards(_ flashcards: [Flashcard]) async throws {
-        print("🔄 \(flashcards.count)개 플래시카드 일괄 생성 시작...")
+    /// 새 플래시카드 추가
+    func addFlashcard(front: String, back: String, subjectID: String, userID: String) async throws -> String {
+        let newFlashcard = Flashcard(
+            userId: userID,
+            subjectId: subjectID,
+            front: front,
+            back: back
+        )
         
-        for flashcard in flashcards {
-            try await createFlashcard(flashcard)
-        }
-        
-        print("✅ \(flashcards.count)개 플래시카드 일괄 생성 완료")
+        let docRef = try flashcardsCollectionRef.addDocument(from: newFlashcard)
+        print("✅ 플래시카드 추가 성공: \(front) -> \(back)")
+        return docRef.documentID
     }
     
     /// 플래시카드 수정
@@ -76,7 +76,7 @@ class FlashcardService: ObservableObject {
             throw NSError(domain: "FlashcardService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Flashcard ID is nil"])
         }
         try await flashcardsCollectionRef.document(documentID).setData(from: flashcard, merge: true)
-        print("✅ 플래시카드 수정 완료: \(flashcard.front)")
+        print("✅ 플래시카드 수정 성공: \(flashcard.front)")
     }
     
     /// 플래시카드 삭제
@@ -85,9 +85,25 @@ class FlashcardService: ObservableObject {
             throw NSError(domain: "FlashcardService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Flashcard ID is nil"])
         }
         try await flashcardsCollectionRef.document(documentID).delete()
-        print("✅ 플래시카드 삭제 완료: \(flashcard.front)")
+        print("✅ 플래시카드 삭제 성공: \(flashcard.front)")
+    }
+
+    /// 플래시카드 일괄 생성 (초기 데이터용)
+    func createFlashcards(_ flashcards: [Flashcard]) async throws {
+        print("🎯 플래시카드 일괄 생성 시작: \(flashcards.count)개")
+        
+        let batch = db.batch()
+        
+        for flashcard in flashcards {
+            let docRef = flashcardsCollectionRef.document()
+            try batch.setData(from: flashcard, forDocument: docRef)
+        }
+        
+        try await batch.commit()
+        print("✅ 플래시카드 일괄 생성 완료: \(flashcards.count)개")
     }
     
+    // 리스너 해제
     deinit {
         listenerRegistration?.remove()
         print("FlashcardService deinitialized and listener removed.")

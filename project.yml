@@ -15,25 +15,23 @@ targets:
     platform: iOS
     sources:
       - path: .
+        excludes:
+          - "**/*.md"
+          - "Pods/**"
         includes:
+          - "**/*.swift"
+          - "Models/**"
+          - "Services/**"
+          - "Views/**"
+          - "Data/**"
           - "MemoryGymApp.swift"
           - "AuthenticationManager.swift"
           - "LoginView.swift"
           - "ContentView.swift"
-          - "Models/"
-          - "Services/"
-          - "Views/"
-          - "Data/"
           - "Assets.xcassets"
           - "Preview Content"
           - "GoogleService-Info.plist"
           - "MemoryGym.entitlements"
-        excludes:
-          - "*.md"
-          - "*.py"
-          - "project.yml"
-          - ".git"
-          - ".vscode"
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.memorygym.app
       INFOPLIST_FILE: Info.plist

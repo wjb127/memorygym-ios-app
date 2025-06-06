@@ -248,20 +248,309 @@ private struct SubjectRowView: View {
     }
 }
 
-/// 2. 퀴즈관리 탭 (플레이스홀더)
+/// 2. 퀴즈관리 탭
 struct QuizManagementView: View {
+    @EnvironmentObject var authManager: AuthenticationManager
+    @StateObject private var subjectService = SubjectService()
+    @StateObject private var flashcardService = FlashcardService()
+    
+    @State private var selectedSubject: Subject?
+    @State private var showAddEditFlashcardSheet = false
+    @State private var flashcardToEdit: Flashcard?
+    @State private var showLoginSheet = false
+    
     var body: some View {
         NavigationView {
             VStack {
-                Text("퀴즈 관리")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                Text("이 곳에서 나만의 퀴즈를 만들고 관리할 수 있습니다.")
+                if authManager.isSignedIn {
+                    if let user = authManager.user {
+                        loggedInContent
+                            .onAppear {
+                                subjectService.fetchSubjects(forUserID: user.id)
+                            }
+                    }
+                } else {
+                    guestContent
+                }
+            }
+            .navigationTitle("퀴즈관리")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if authManager.isSignedIn {
+                        Menu {
+                            if let user = authManager.user {
+                                Text(user.displayName ?? "사용자").font(.subheadline)
+                            }
+                            Button("로그아웃", role: .destructive) {
+                                authManager.signOut()
+                                selectedSubject = nil
+                            }
+                        } label: {
+                            Image(systemName: "person.circle.fill")
+                        }
+                    } else {
+                        Button("로그인") {
+                            showLoginSheet = true
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddEditFlashcardSheet) {
+                if let subjectID = selectedSubject?.id {
+                    AddEditFlashcardView(
+                        flashcardToEdit: flashcardToEdit,
+                        subjectID: subjectID,
+                        flashcardService: flashcardService
+                    )
+                    .environmentObject(authManager)
+                }
+            }
+            .sheet(isPresented: $showLoginSheet) {
+                LoginView()
+                    .environmentObject(authManager)
+            }
+        }
+    }
+    
+    // MARK: - Logged-In Content
+    @ViewBuilder
+    private var loggedInContent: some View {
+        VStack(spacing: 20) {
+            // 과목 선택 드롭다운
+            subjectSelectionView
+            
+            if let selectedSubject = selectedSubject {
+                // 선택된 과목의 플래시카드 목록
+                flashcardListView
+            } else {
+                // 과목 미선택 상태
+                emptySelectionView
+            }
+        }
+        .padding()
+    }
+    
+    // MARK: - 과목 선택 드롭다운
+    @ViewBuilder
+    private var subjectSelectionView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("과목 선택")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                Spacer()
+                if selectedSubject != nil {
+                    Button(action: {
+                        flashcardToEdit = nil
+                        showAddEditFlashcardSheet = true
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.blue)
+                    }
+                }
+            }
+            
+            if subjectService.subjects.isEmpty {
+                Text("등록된 과목이 없습니다. 암기훈련 탭에서 과목을 먼저 추가해주세요.")
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
+                    .padding()
+            } else {
+                Menu {
+                    Button("과목 선택 해제") {
+                        selectedSubject = nil
+                    }
+                    
+                    ForEach(subjectService.subjects) { subject in
+                        Button(action: {
+                            selectedSubject = subject
+                            // 선택된 과목의 플래시카드 조회
+                            if let user = authManager.user {
+                                flashcardService.fetchFlashcards(
+                                    forSubjectID: subject.id ?? "",
+                                    userID: user.id
+                                )
+                            }
+                        }) {
+                            HStack {
+                                Text(subject.name)
+                                Spacer()
+                                Text("\(subject.cardCount)장")
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text(selectedSubject?.name ?? "과목을 선택하세요")
+                            .foregroundColor(selectedSubject == nil ? .secondary : .primary)
+                        Spacer()
+                        Image(systemName: "chevron.down")
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(Color(.systemBackground))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(.systemGray4), lineWidth: 1)
+                    )
+                }
             }
-            .padding()
-            .navigationTitle("퀴즈관리")
+        }
+    }
+    
+    // MARK: - 플래시카드 목록
+    @ViewBuilder
+    private var flashcardListView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("\(selectedSubject?.name ?? "과목") 카드")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                Spacer()
+                Text("\(flashcardService.flashcards.count)장")
+                    .foregroundColor(.secondary)
+            }
+            
+            if flashcardService.flashcards.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "rectangle.stack.badge.plus")
+                        .font(.system(size: 50))
+                        .foregroundColor(.gray)
+                    Text("아직 카드가 없습니다")
+                        .font(.title3)
+                        .fontWeight(.medium)
+                    Text("첫 번째 카드를 추가해보세요!")
+                        .foregroundColor(.secondary)
+                    Button(action: {
+                        flashcardToEdit = nil
+                        showAddEditFlashcardSheet = true
+                    }) {
+                        Label("카드 추가", systemImage: "plus.circle.fill")
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding()
+            } else {
+                List {
+                    ForEach(flashcardService.flashcards) { flashcard in
+                        FlashcardRowView(flashcard: flashcard) {
+                            flashcardToEdit = flashcard
+                            showAddEditFlashcardSheet = true
+                        }
+                    }
+                }
+                .listStyle(.plain)
+            }
+        }
+    }
+    
+    // MARK: - 과목 미선택 상태
+    @ViewBuilder
+    private var emptySelectionView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "questionmark.diamond")
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+            Text("과목을 선택해주세요")
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text("위의 드롭다운에서 관리할 과목을 선택하면\n해당 과목의 퀴즈 카드들을 확인하고 편집할 수 있습니다.")
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+    
+    // MARK: - Guest Content
+    private var guestContent: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "person.crop.circle.badge.questionmark")
+                .font(.system(size: 80))
+                .foregroundColor(.gray)
+            Text("로그인 필요")
+                .font(.title)
+                .fontWeight(.bold)
+            Text("퀴즈 카드를 관리하려면 로그인이 필요해요.")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Button("로그인 하러 가기") {
+                showLoginSheet = true
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+        }
+    }
+}
+
+// MARK: - FlashcardRowView
+private struct FlashcardRowView: View {
+    let flashcard: Flashcard
+    var editAction: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // 카드 내용
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text(flashcard.front)
+                        .font(.headline)
+                        .fontWeight(.medium)
+                    Spacer()
+                    difficultyBadge
+                }
+                
+                Text(flashcard.back)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                
+                HStack(spacing: 12) {
+                    Label("\(flashcard.reviewCount)", systemImage: "repeat")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Label("박스 \(flashcard.boxNumber)", systemImage: "archivebox")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            // 편집 버튼
+            Button(action: editAction) {
+                Image(systemName: "ellipsis.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.blue)
+            }
+            .buttonStyle(.borderless)
+        }
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+    }
+    
+    @ViewBuilder
+    private var difficultyBadge: some View {
+        let (text, color) = difficultyInfo
+        Text(text)
+            .font(.caption)
+            .fontWeight(.medium)
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Capsule().fill(color))
+    }
+    
+    private var difficultyInfo: (String, Color) {
+        switch flashcard.difficulty {
+        case 1: return ("쉬움", .green)
+        case 2: return ("보통", .orange)
+        case 3: return ("어려움", .red)
+        default: return ("보통", .gray)
         }
     }
 }
