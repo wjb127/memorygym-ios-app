@@ -28,48 +28,219 @@ struct ContentView: View {
 /// 1. 암기훈련 탭
 struct MemoryTrainingView: View {
     @EnvironmentObject var authManager: AuthenticationManager
+    @StateObject private var subjectService = SubjectService()
+    
+    @State private var selectedSubject: Subject?
+    @State private var showAddEditSubjectSheet = false
+    @State private var subjectToEdit: Subject?
     @State private var showLoginSheet = false
 
     var body: some View {
-        NavigationView {
-            MainContentView(showLoginSheet: $showLoginSheet)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        if authManager.isSignedIn {
-                            // 로그인된 상태 - 프로필 버튼
-                            Menu {
-                                if let user = authManager.user {
-                                    VStack {
-                                        Text(user.displayName ?? "사용자")
-                                        if let email = user.email {
-                                            Text(email)
-                                                .font(.caption)
-                                        }
-                                    }
+        ZStack(alignment: .bottom) {
+            NavigationView {
+                VStack {
+                    if authManager.isSignedIn {
+                        if let user = authManager.user {
+                            loggedInView
+                                .onAppear {
+                                    subjectService.fetchSubjects(forUserID: user.id)
                                 }
-                                
-                                Button("로그아웃", role: .destructive) {
-                                    authManager.signOut()
-                                }
-                            } label: {
-                                Image(systemName: "person.circle.fill")
-                                    .foregroundColor(.blue)
-                                    .font(.title2)
-                            }
-                        } else {
-                            // 게스트 모드 - 로그인 버튼
-                            Button("로그인") {
-                                showLoginSheet = true
-                            }
-                            .foregroundColor(.blue)
                         }
+                    } else {
+                        guestView
                     }
                 }
-                .sheet(isPresented: $showLoginSheet) {
-                    LoginView()
-                        .environmentObject(authManager)
+                .navigationTitle("내 과목")
+                .toolbar { toolbarContent }
+            }
+            .sheet(isPresented: $showAddEditSubjectSheet) {
+                AddEditSubjectView(subjectToEdit: subjectToEdit, subjectService: subjectService)
+                    .environmentObject(authManager)
+            }
+            .sheet(isPresented: $showLoginSheet) {
+                LoginView()
+                    .environmentObject(authManager)
+            }
+
+            // 하단 '암기훈련 시작' 버튼
+            if authManager.isSignedIn {
+                startButton
+                    .padding(.bottom, 10)
+            }
+        }
+    }
+
+    // MARK: - Logged-In View
+    @ViewBuilder
+    private var loggedInView: some View {
+        if subjectService.subjects.isEmpty {
+            EmptySubjectView {
+                subjectToEdit = nil
+                showAddEditSubjectSheet = true
+            }
+        } else {
+            List {
+                ForEach(subjectService.subjects) { subject in
+                    SubjectRowView(subject: subject, selectedSubject: $selectedSubject) {
+                        subjectToEdit = subject
+                        showAddEditSubjectSheet = true
+                    }
                 }
+            }
+            .listStyle(.plain)
+        }
+    }
+
+    // MARK: - Guest View
+    private var guestView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "person.crop.circle.badge.questionmark")
+                .font(.system(size: 80))
+                .foregroundColor(.gray)
+            Text("로그인 필요")
+                .font(.title)
+                .fontWeight(.bold)
+            Text("나만의 과목을 만들고 관리하려면 로그인이 필요해요.")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Button("로그인 하러 가기") {
+                showLoginSheet = true
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+        }
+    }
+
+    // MARK: - Toolbar
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            if authManager.isSignedIn {
+                HStack {
+                    Button(action: {
+                        subjectToEdit = nil
+                        showAddEditSubjectSheet = true
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                    
+                    Menu {
+                        if let user = authManager.user {
+                            Text(user.displayName ?? "사용자").font(.subheadline)
+                        }
+                        Button("로그아웃", role: .destructive) {
+                            authManager.signOut()
+                            selectedSubject = nil
+                        }
+                    } label: {
+                        Image(systemName: "person.circle.fill")
+                    }
+                }
+            } else {
+                Button("로그인") {
+                    showLoginSheet = true
+                }
+            }
+        }
+    }
+    
+    // MARK: - Start Button
+    private var startButton: some View {
+        Button(action: {
+            // TODO: 암기 훈련 시작 로직
+            if let subject = selectedSubject {
+                print("\(subject.name) 암기훈련을 시작합니다.")
+            }
+        }) {
+            Text(selectedSubject == nil ? "과목을 선택해주세요" : "암기훈련을 시작합니다")
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(selectedSubject == nil ? Color.gray.opacity(0.5) : Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(15)
+        }
+        .disabled(selectedSubject == nil)
+        .padding(.horizontal)
+        .shadow(radius: 5)
+    }
+}
+
+// MARK: - Helper Views for MemoryTrainingView
+
+private struct EmptySubjectView: View {
+    var addAction: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "books.vertical.fill")
+                .font(.system(size: 80))
+                .foregroundColor(.gray.opacity(0.7))
+            Text("아직 등록된 과목이 없어요")
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text("첫 번째 과목을 추가하고 암기 훈련을 시작해보세요!")
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            Button(action: addAction) {
+                Label("첫 과목 추가하기", systemImage: "plus.circle.fill")
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .padding(.top)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct SubjectRowView: View {
+    let subject: Subject
+    @Binding var selectedSubject: Subject?
+    var editAction: () -> Void
+    
+    private var isSelected: Bool {
+        subject.id == selectedSubject?.id
+    }
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(subject.name)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                Text(subject.description.isEmpty ? "설명 없음" : subject.description)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+            
+            Spacer()
+            
+            Text("\(subject.cardCount) 카드")
+                .font(.caption)
+                .foregroundColor(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(Color.blue.opacity(0.8)))
+
+            Button(action: editAction) {
+                Image(systemName: "ellipsis.circle.fill")
+                    .font(.title2)
+            }
+            .buttonStyle(.borderless)
+        }
+        .padding()
+        .background(isSelected ? Color.blue.opacity(0.15) : Color.clear)
+        .cornerRadius(10)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isSelected {
+                selectedSubject = nil
+            } else {
+                selectedSubject = subject
+            }
         }
     }
 }
@@ -106,167 +277,6 @@ struct StatisticsView: View {
             }
             .padding()
             .navigationTitle("통계")
-        }
-    }
-}
-
-// 기존 MainView의 이름을 MainContentView로 변경하여 재사용
-struct MainContentView: View {
-    @EnvironmentObject var authManager: AuthenticationManager
-    @Binding var showLoginSheet: Bool
-    
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 30) {
-                // 헤더 섹션
-                VStack(spacing: 10) {
-                    Image(systemName: "graduationcap.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
-                    
-                    Text("암기훈련소")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    
-                    if authManager.isSignedIn {
-                        if let user = authManager.user {
-                            Text("안녕하세요, \(user.displayName ?? "사용자")님! 👋")
-                                .font(.title3)
-                                .foregroundColor(.blue)
-                        }
-                    } else {
-                        Text("게스트 모드로 체험해보세요! 📚")
-                            .font(.title3)
-                            .foregroundColor(.gray)
-                    }
-                }
-                .padding(.top, 20)
-                
-                // 기능 카드들
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ], spacing: 20) {
-                    
-                    FeatureCard(
-                        icon: "brain.head.profile",
-                        title: "단어 암기",
-                        description: "영어 단어를 효과적으로 암기하세요",
-                        color: .blue,
-                        isLocked: false
-                    )
-                    
-                    FeatureCard(
-                        icon: "book.fill",
-                        title: "문장 학습",
-                        description: "실제 문장으로 학습하세요",
-                        color: .green,
-                        isLocked: !authManager.isSignedIn
-                    )
-                    
-                    FeatureCard(
-                        icon: "chart.line.uptrend.xyaxis",
-                        title: "학습 통계",
-                        description: "학습 진도를 확인하세요",
-                        color: .orange,
-                        isLocked: !authManager.isSignedIn
-                    )
-                    
-                    FeatureCard(
-                        icon: "person.2.fill",
-                        title: "친구와 경쟁",
-                        description: "친구들과 학습 경쟁하세요",
-                        color: .purple,
-                        isLocked: !authManager.isSignedIn
-                    )
-                }
-                .padding(.horizontal)
-                
-                // 게스트 모드 안내
-                if !authManager.isSignedIn {
-                    VStack(spacing: 15) {
-                        Text("🔒 더 많은 기능을 원하시나요?")
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                        
-                        Text("로그인하면 모든 기능을 사용하고\n학습 진도를 저장할 수 있어요!")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                        
-                        Button("지금 로그인하기") {
-                            showLoginSheet = true
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
-                    }
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(15)
-                    .padding(.horizontal)
-                }
-                
-                Spacer(minLength: 20)
-            }
-        }
-        .navigationTitle("암기훈련")
-    }
-}
-
-struct FeatureCard: View {
-    let icon: String
-    let title: String
-    let description: String
-    let color: Color
-    let isLocked: Bool
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.2))
-                    .frame(width: 50, height: 50)
-                
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(color)
-                
-                if isLocked {
-                    Image(systemName: "lock.fill")
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .background(Circle().fill(Color.black.opacity(0.7)).frame(width: 20, height: 20))
-                        .offset(x: 15, y: -15)
-                }
-            }
-            
-            VStack(spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(isLocked ? .gray : .primary)
-                
-                Text(description)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .padding()
-        .frame(height: 130)
-        .background(Color.white)
-        .cornerRadius(15)
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
-        .opacity(isLocked ? 0.7 : 1.0)
-        .onTapGesture {
-            if isLocked {
-                // 로그인 필요 알림
-                print("로그인이 필요한 기능입니다")
-            } else {
-                // 기능 실행
-                print("\(title) 기능 실행")
-            }
         }
     }
 }

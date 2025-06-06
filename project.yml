@@ -16,7 +16,13 @@ targets:
     sources:
       - path: .
         includes:
-          - "*.swift"
+          - "MemoryGymApp.swift"
+          - "AuthenticationManager.swift"
+          - "LoginView.swift"
+          - "ContentView.swift"
+          - "Models/"
+          - "Services/"
+          - "Views/"
           - "Assets.xcassets"
           - "Preview Content"
           - "GoogleService-Info.plist"
