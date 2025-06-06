@@ -39,7 +39,15 @@ struct MemoryTrainingView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             NavigationView {
-                VStack {
+                VStack(spacing: 0) {
+                    // 상단 헤더 (내 과목 + 버튼들)
+                    if authManager.isSignedIn {
+                        headerView
+                            .padding(.horizontal)
+                            .padding(.top, 8)
+                    }
+                    
+                    // 메인 콘텐츠
                     if authManager.isSignedIn {
                         if let user = authManager.user {
                             loggedInView
@@ -66,8 +74,17 @@ struct MemoryTrainingView: View {
                         guestView
                     }
                 }
-                .navigationTitle("내 과목")
-                .toolbar { toolbarContent }
+                .navigationBarHidden(authManager.isSignedIn) // 로그인 시 네비게이션 바 숨김
+                .toolbar {
+                    // 게스트 모드일 때만 툴바 표시
+                    if !authManager.isSignedIn {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("로그인") {
+                                showLoginSheet = true
+                            }
+                        }
+                    }
+                }
             }
             .sheet(isPresented: $showAddEditSubjectSheet) {
                 AddEditSubjectView(subjectToEdit: subjectToEdit, subjectService: subjectService)
@@ -91,6 +108,44 @@ struct MemoryTrainingView: View {
                 selectedSubject = nil
             }
         }
+    }
+
+    // MARK: - Header View (내 과목 + 버튼들)
+    @ViewBuilder
+    private var headerView: some View {
+        HStack {
+            Text("내 과목")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+            
+            Spacer()
+            
+            // 과목 추가 버튼
+            Button(action: {
+                subjectToEdit = nil
+                showAddEditSubjectSheet = true
+            }) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.blue)
+            }
+            
+            // 프로필 메뉴
+            Menu {
+                if let user = authManager.user {
+                    Text(user.displayName ?? "사용자").font(.subheadline)
+                }
+                Button("로그아웃", role: .destructive) {
+                    authManager.signOut()
+                    selectedSubject = nil
+                }
+            } label: {
+                Image(systemName: "person.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.blue)
+            }
+        }
+        .padding(.bottom, 12)
     }
 
     // MARK: - Logged-In View
@@ -136,39 +191,6 @@ struct MemoryTrainingView: View {
         }
     }
 
-    // MARK: - Toolbar
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            if authManager.isSignedIn {
-                HStack {
-                    Button(action: {
-                        subjectToEdit = nil
-                        showAddEditSubjectSheet = true
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                    
-                    Menu {
-                        if let user = authManager.user {
-                            Text(user.displayName ?? "사용자").font(.subheadline)
-                        }
-                        Button("로그아웃", role: .destructive) {
-                            authManager.signOut()
-                            selectedSubject = nil
-                        }
-                    } label: {
-                        Image(systemName: "person.circle.fill")
-                    }
-                }
-            } else {
-                Button("로그인") {
-                    showLoginSheet = true
-                }
-            }
-        }
-    }
-    
     // MARK: - Start Button
     private var startButton: some View {
         Button(action: {
@@ -198,6 +220,8 @@ private struct EmptySubjectView: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            Spacer()
+            
             Image(systemName: "books.vertical.fill")
                 .font(.system(size: 80))
                 .foregroundColor(.gray.opacity(0.7))
@@ -207,12 +231,19 @@ private struct EmptySubjectView: View {
             Text("첫 번째 과목을 추가하고 암기 훈련을 시작해보세요!")
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+                .padding(.horizontal)
             Button(action: addAction) {
                 Label("첫 과목 추가하기", systemImage: "plus.circle.fill")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: 200)
+                    .background(Color.blue)
+                    .cornerRadius(12)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
             .padding(.top)
+            
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
