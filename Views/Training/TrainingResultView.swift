@@ -112,7 +112,7 @@ struct TrainingResultView: View {
                         }
                     }
                     .padding()
-                    .background(Color(UIColor.systemGray6))
+                    .background(Color(.systemGray6))
                     .cornerRadius(12)
                 }
                 .padding(.horizontal)

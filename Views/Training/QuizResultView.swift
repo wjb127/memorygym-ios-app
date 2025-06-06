@@ -74,6 +74,6 @@ struct QuizResultView: View {
             .padding(.horizontal)
             .padding(.bottom)
         }
-        .background(Color(UIColor.systemGroupedBackground))
+        .background(Color(.systemGroupedBackground))
     }
 } 

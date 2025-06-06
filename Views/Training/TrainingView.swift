@@ -138,7 +138,7 @@ struct TrainingView: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
-        .background(Color(UIColor.systemBackground))
+        .background(Color(.systemBackground))
     }
     
     // MARK: - 퀴즈 뷰
