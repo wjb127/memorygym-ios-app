@@ -13,6 +13,9 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     majorVersion: 10.0.0
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    majorVersion: 7.0.0
 
 targets:
   MemoryGym:
@@ -40,6 +43,8 @@ targets:
         product: FirebaseFirestore
       - package: Firebase
         product: FirebaseStorage
+      - package: GoogleSignIn
+        product: GoogleSignIn
     info:
       path: Info.plist
       properties:

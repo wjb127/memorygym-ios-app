@@ -3,7 +3,8 @@ import FirebaseCore
 
 @main
 struct MemoryGymApp: App {
-    @StateObject private var appState = AppState()
+    @StateObject private var authManager = AuthenticationManager()
+    @State private var showSplash = true
     
     init() {
         FirebaseApp.configure()
@@ -11,8 +12,39 @@ struct MemoryGymApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(appState)
+            Group {
+                if showSplash {
+                    SplashView()
+                } else {
+                    ContentView()
+                        .environmentObject(authManager)
+                }
+            }
+            .animation(.easeInOut(duration: 0.5), value: showSplash)
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    showSplash = false
+                }
+            }
+        }
+    }
+}
+
+struct SplashView: View {
+    var body: some View {
+        ZStack {
+            Color.blue.ignoresSafeArea()
+            
+            VStack {
+                Image(systemName: "graduationcap.fill")
+                    .font(.system(size: 80))
+                    .foregroundColor(.white)
+                
+                Text("암기훈련소")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+            }
         }
     }
 }

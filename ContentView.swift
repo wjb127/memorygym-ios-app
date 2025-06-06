@@ -1,312 +1,176 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var appState: AppState
+    @StateObject private var authManager = AuthenticationManager()
+    @State private var selectedTab = 0
+    @State private var showingLogin = false
     
     var body: some View {
-        Group {
-            if appState.showSplash {
-                SplashView()
-            } else {
-                MainAppView()
-            }
-        }
-        .animation(.easeInOut(duration: 0.5), value: appState.showSplash)
-    }
-}
-
-// MARK: - Splash View
-struct SplashView: View {
-    var body: some View {
-        ZStack {
-            Color.accentColor
-                .ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                Image(systemName: "brain.head.profile")
-                    .font(.system(size: 80))
-                    .foregroundColor(.white)
-                
-                Text("암기훈련소")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Text("당신의 두뇌를 위한 최고의 트레이닝")
-                    .font(.headline)
-                    .foregroundColor(.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
-            }
-        }
-    }
-}
-
-// MARK: - Main App View
-struct MainAppView: View {
-    @State private var selectedTab: Tab = .training
-    @EnvironmentObject var appState: AppState
-    
-    enum Tab: CaseIterable {
-        case training, quiz, statistics
-        
-        var title: String {
-            switch self {
-            case .training: return "암기훈련"
-            case .quiz: return "퀴즈관리"
-            case .statistics: return "통계"
-            }
-        }
-        
-        var icon: String {
-            switch self {
-            case .training: return "brain.head.profile"
-            case .quiz: return "questionmark.circle"
-            case .statistics: return "chart.bar"
-            }
-        }
-    }
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // Top Navigation Bar
-            HStack {
-                // 좌측 아이콘 (X 모양 디자인)
-                HStack(spacing: 4) {
-                    // X 모양 아이콘을 두 개의 선으로 구현
-                    ZStack {
+        NavigationView {
+            VStack(spacing: 0) {
+                // 상단 네비게이션 바
+                HStack {
+                    // 좌측 X 아이콘
+                    HStack(spacing: 0) {
                         Rectangle()
                             .fill(Color.red)
-                            .frame(width: 20, height: 3)
+                            .frame(width: 20, height: 2)
                             .rotationEffect(.degrees(45))
                         Rectangle()
                             .fill(Color.red)
-                            .frame(width: 20, height: 3)
+                            .frame(width: 20, height: 2)
                             .rotationEffect(.degrees(-45))
                     }
-                    .frame(width: 24, height: 24)
-                }
-                
-                Text("암기훈련소")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                
-                Spacer()
-                
-                Button("로그인") {
-                    // 로그인 액션
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color.gray.opacity(0.2))
-                .cornerRadius(8)
-            }
-            .padding()
-            .background(Color.white)
-            
-            // Subtitle
-            HStack {
-                Text("당신의 두뇌를 위한 최고의 트레이닝")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                Spacer()
-            }
-            .padding(.horizontal)
-            .padding(.bottom)
-            
-            // Tab Bar
-            GeometryReader { geometry in
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        ForEach(Tab.allCases, id: \.self) { tab in
-                            Button(action: {
-                                selectedTab = tab
-                            }) {
-                                VStack(spacing: 4) {
-                                    Text(tab.title)
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(selectedTab == tab ? .red : .gray)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                            }
-                        }
-                    }
-                    .background(Color.white)
+                    .frame(width: 20, height: 20)
                     
-                    // Tab indicator
-                    HStack {
-                        if selectedTab == .training {
-                            Rectangle()
-                                .fill(Color.red)
-                                .frame(height: 2)
-                            Spacer()
-                            Spacer()
-                        } else if selectedTab == .quiz {
-                            Spacer()
-                            Rectangle()
-                                .fill(Color.red)
-                                .frame(height: 2)
-                            Spacer()
-                        } else {
-                            Spacer()
-                            Spacer()
-                            Rectangle()
-                                .fill(Color.red)
-                                .frame(height: 2)
-                        }
-                    }
-                    .animation(.easeInOut(duration: 0.3), value: selectedTab)
-                }
-            }
-            .frame(height: 50)
-            
-            // Content Area
-            ZStack {
-                Color.gray.opacity(0.1)
-                    .ignoresSafeArea()
-                
-                // 선택된 탭에 따른 콘텐츠 표시
-                switch selectedTab {
-                case .training:
-                    TrainingTabView()
-                case .quiz:
-                    QuizManagementTabView()
-                case .statistics:
-                    StatisticsTabView()
-                }
-            }
-            
-            Spacer()
-        }
-        .background(Color.white)
-    }
-}
-
-// MARK: - Tab Content Views
-struct TrainingTabView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            // Main Content Card
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Image(systemName: "brain.head.profile")
-                        .foregroundColor(.red)
+                    Spacer()
+                    
+                    // 중앙 타이틀
+                    Text("암기훈련소")
                         .font(.title2)
-                    
-                    Text("두뇌 훈련하기")
-                        .font(.title3)
                         .fontWeight(.semibold)
                     
                     Spacer()
                     
-                    Button(action: {}) {
-                        Image(systemName: "arrow.clockwise")
-                            .foregroundColor(.gray)
+                    // 우측 로그인/로그아웃 버튼
+                    Button(action: {
+                        if authManager.isSignedIn {
+                            authManager.signOut()
+                        } else {
+                            showingLogin = true
+                        }
+                    }) {
+                        Text(authManager.isSignedIn ? "로그아웃" : "로그인")
+                            .font(.system(size: 16))
+                            .foregroundColor(.blue)
                     }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color(.systemBackground))
+                .shadow(color: .gray.opacity(0.2), radius: 1, x: 0, y: 1)
+                
+                // 사용자 정보 표시 (로그인된 경우)
+                if authManager.isSignedIn, let user = authManager.user {
+                    HStack {
+                        Text("안녕하세요, \(user.displayName ?? user.email ?? "사용자")님!")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color(.systemGray6))
                 }
                 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("학습할 과목 선택")
-                        .font(.subheadline)
-                        .foregroundColor(.black)
+                // 탭 컨텐츠
+                TabView(selection: $selectedTab) {
+                    TrainingTabView()
+                        .tag(0)
                     
-                    // Subject Selector
-                    HStack {
-                        Text("중급 영단어 (체험판)")
-                            .foregroundColor(.black)
-                        Spacer()
-                        Image(systemName: "chevron.down")
-                            .foregroundColor(.red)
-                    }
-                    .padding()
-                    .background(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.red, lineWidth: 1)
-                    )
+                    QuizManagementTabView()
+                        .tag(1)
                     
-                    // Start Button
-                    Button("로그인 후 이용 가능") {
-                        // 로그인 액션
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.gray.opacity(0.3))
-                    .foregroundColor(.gray)
-                    .cornerRadius(8)
+                    StatisticsTabView()
+                        .tag(2)
                 }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                
+                // 하단 탭바
+                HStack {
+                    TabBarButton(title: "암기훈련", isSelected: selectedTab == 0) {
+                        selectedTab = 0
+                    }
+                    
+                    TabBarButton(title: "퀴즈관리", isSelected: selectedTab == 1) {
+                        selectedTab = 1
+                    }
+                    
+                    TabBarButton(title: "통계", isSelected: selectedTab == 2) {
+                        selectedTab = 2
+                    }
+                }
+                .padding(.vertical, 10)
+                .background(Color(.systemBackground))
+                .shadow(color: .gray.opacity(0.2), radius: 1, x: 0, y: -1)
             }
-            .padding()
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(12)
+            .navigationBarHidden(true)
+        }
+        .sheet(isPresented: $showingLogin) {
+            LoginView()
+        }
+        .environmentObject(authManager)
+    }
+}
+
+struct TabBarButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
+                .foregroundColor(isSelected ? .blue : .gray)
+                .frame(maxWidth: .infinity)
+        }
+    }
+}
+
+struct TrainingTabView: View {
+    var body: some View {
+        VStack {
+            Text("암기훈련")
+                .font(.largeTitle)
+                .padding()
+            
+            Text("플래시카드 기반 암기 훈련을 시작하세요")
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding()
             
             Spacer()
         }
-        .padding()
     }
 }
 
 struct QuizManagementTabView: View {
     var body: some View {
-        VStack(spacing: 20) {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Image(systemName: "questionmark.circle")
-                        .foregroundColor(.red)
-                        .font(.title2)
-                    
-                    Text("퀴즈 관리")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                    
-                    Spacer()
-                }
-                
-                Text("퀴즈 기능은 준비 중입니다.")
-                    .foregroundColor(.gray)
-                    .padding()
-            }
-            .padding()
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(12)
+        VStack {
+            Text("퀴즈관리")
+                .font(.largeTitle)
+                .padding()
+            
+            Text("플래시카드를 생성하고 관리하세요")
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding()
             
             Spacer()
         }
-        .padding()
     }
 }
 
 struct StatisticsTabView: View {
     var body: some View {
-        VStack(spacing: 20) {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Image(systemName: "chart.bar")
-                        .foregroundColor(.red)
-                        .font(.title2)
-                    
-                    Text("학습 통계")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                    
-                    Spacer()
-                }
-                
-                Text("통계 기능은 준비 중입니다.")
-                    .foregroundColor(.gray)
-                    .padding()
-            }
-            .padding()
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(12)
+        VStack {
+            Text("통계")
+                .font(.largeTitle)
+                .padding()
+            
+            Text("학습 진도와 성과를 확인하세요")
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding()
             
             Spacer()
         }
-        .padding()
     }
 }
 
-#Preview {
-    ContentView()
-        .environmentObject(AppState())
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 } 
