@@ -9,6 +9,11 @@ settings:
   DEVELOPMENT_TEAM: "9Q26686S8R"
   CODE_SIGN_STYLE: Automatic
 
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    majorVersion: 10.0.0
+
 targets:
   MemoryGym:
     type: application
@@ -19,12 +24,22 @@ targets:
           - "*.swift"
           - "Assets.xcassets"
           - "Preview Content"
+          - "GoogleService-Info.plist"
         excludes:
           - "*.md"
           - "*.py"
           - "project.yml"
           - ".git"
           - ".vscode"
+    dependencies:
+      - package: Firebase
+        product: FirebaseAnalytics
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseStorage
     info:
       path: Info.plist
       properties:

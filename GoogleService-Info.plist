@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>804901833090-ri9ardvilb9e448luosrs5c0rlf0qbov.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.804901833090-ri9ardvilb9e448luosrs5c0rlf0qbov</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>804901833090-s8a7rtnntl42pboqhu3p3v81akcrgl6n.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAIEmQYAb1elhFjRRGCnMFxkchpiv7oVYo</string>
+	<key>GCM_SENDER_ID</key>
+	<string>804901833090</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.memorygym.app</string>
+	<key>PROJECT_ID</key>
+	<string>memorygym-5b902</string>
+	<key>STORAGE_BUCKET</key>
+	<string>memorygym-5b902.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:804901833090:ios:f44f7d29d1a374b7c7e79b</string>
+</dict>
+</plist>
