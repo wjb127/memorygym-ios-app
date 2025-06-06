@@ -20,6 +20,7 @@ class AuthenticationManager: NSObject, ObservableObject {
     @Published var errorMessage = ""
     
     private var currentNonce: String?
+    private let userService = UserService()
     
     override init() {
         super.init()
@@ -27,14 +28,32 @@ class AuthenticationManager: NSObject, ObservableObject {
         Auth.auth().addStateDidChangeListener { [weak self] (auth, user) in
             Task { @MainActor in
                 if let user = user {
-                    self?.user = AppUser(
+                    print("🔐 Firebase Auth 사용자 로그인 성공")
+                    print("   ➤ Firebase Auth UID: \(user.uid)")
+                    print("   ➤ 이메일: \(user.email ?? "없음")")
+                    print("   ➤ 이름: \(user.displayName ?? "없음")")
+                    
+                    let appUser = AppUser(
                         id: user.uid,
                         displayName: user.displayName,
                         email: user.email,
                         photoURL: user.photoURL?.absoluteString
                     )
+                    
+                    print("   ➤ 생성된 AppUser.id: \(appUser.id)")
+                    print("   ➤ UID 일치 여부: \(user.uid == appUser.id ? "✅ 일치" : "❌ 불일치")")
+                    
+                    self?.user = appUser
                     self?.isSignedIn = true
+                    
+                    // Firestore에 사용자 정보 저장/업데이트
+                    do {
+                        try await self?.userService.createOrUpdateUser(authUser: user)
+                    } catch {
+                        print("❌ 사용자 정보 저장 실패: \(error.localizedDescription)")
+                    }
                 } else {
+                    print("🔓 사용자 로그아웃")
                     self?.user = nil
                     self?.isSignedIn = false
                 }

@@ -43,6 +43,9 @@ struct MemoryTrainingView: View {
                         if let user = authManager.user {
                             loggedInView
                                 .onAppear {
+                                    print("🔍 ContentView - 과목 조회 요청")
+                                    print("   ➤ AuthManager.user.id: \(user.id)")
+                                    print("   ➤ 이 ID로 subjects 쿼리 실행...")
                                     subjectService.fetchSubjects(forUserID: user.id)
                                 }
                         }

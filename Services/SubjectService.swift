@@ -14,30 +14,57 @@ class SubjectService: ObservableObject {
     private var listenerRegistration: ListenerRegistration?
 
     func fetchSubjects(forUserID userID: String) {
+        print("📚 과목 조회 시작")
+        print("   ➤ 쿼리에 사용할 사용자 ID: '\(userID)'")
+        print("   ➤ 쿼리: subjects.whereField('userId', isEqualTo: '\(userID)')")
+        
         // 중복 리스너 방지
         listenerRegistration?.remove()
         
         listenerRegistration = subjectsCollectionRef
             .whereField("userId", isEqualTo: userID)
-            .order(by: "createdAt", descending: true)
+            // .order(by: "createdAt", descending: true)  // 복합 인덱스 필요해서 임시 제거
             .addSnapshotListener { [weak self] (querySnapshot, error) in
                 guard let self = self else { return }
                 
                 if let error = error {
-                    print("Error fetching subjects: \(error.localizedDescription)")
+                    print("❌ 과목 조회 오류: \(error.localizedDescription)")
                     return
                 }
                 
                 guard let documents = querySnapshot?.documents else {
-                    print("No documents in 'subjects' collection for user \(userID)")
+                    print("📭 쿼리 결과: 문서 없음 (사용자 ID: '\(userID)')")
                     self.subjects = []
                     return
                 }
                 
-                self.subjects = documents.compactMap { document -> Subject? in
-                    try? document.data(as: Subject.self)
+                print("📄 쿼리 결과: \(documents.count)개 문서 발견")
+                
+                // 각 문서의 실제 userId 값 확인
+                for (index, doc) in documents.enumerated() {
+                    let data = doc.data()
+                    let docUserId = data["userId"] as? String ?? "없음"
+                    print("   문서 \(index + 1): ID=\(doc.documentID), userId='\(docUserId)' (쿼리ID='\(userID)', 일치=\(docUserId == userID ? "✅" : "❌"))")
                 }
-                print("Fetched \(self.subjects.count) subjects for user \(userID)")
+                
+                let subjects = documents.compactMap { document -> Subject? in
+                    do {
+                        let subject = try document.data(as: Subject.self)
+                        print("✅ 과목 파싱 성공: '\(subject.name)' (문서ID: \(subject.id ?? "없음"), userId: '\(subject.userId)')")
+                        return subject
+                    } catch {
+                        print("❌ 과목 파싱 실패 - 문서 ID: \(document.documentID), 오류: \(error)")
+                        return nil
+                    }
+                }
+                
+                self.subjects = subjects
+                print("🎯 최종 결과: \(self.subjects.count)개 과목 로드 완료")
+                
+                // 각 과목의 상세 정보 출력
+                for (index, subject) in self.subjects.enumerated() {
+                    print("   \(index + 1). '\(subject.name)' - 카드: \(subject.cardCount)개, userId: '\(subject.userId)'")
+                }
             }
     }
     
@@ -53,6 +80,14 @@ class SubjectService: ObservableObject {
         }
         try await subjectsCollectionRef.document(documentID).setData(from: subject, merge: true)
         print("Successfully updated subject: \(subject.name)")
+    }
+    
+    /// 과목의 카드 개수 업데이트
+    func updateSubjectCardCount(subjectId: String, cardCount: Int) async throws {
+        try await subjectsCollectionRef.document(subjectId).updateData([
+            "cardCount": cardCount
+        ])
+        print("✅ 과목 카드 개수 업데이트: \(subjectId) -> \(cardCount)개")
     }
 
     func deleteSubject(_ subject: Subject) async throws {

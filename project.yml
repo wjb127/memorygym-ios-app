@@ -23,6 +23,7 @@ targets:
           - "Models/"
           - "Services/"
           - "Views/"
+          - "Data/"
           - "Assets.xcassets"
           - "Preview Content"
           - "GoogleService-Info.plist"
