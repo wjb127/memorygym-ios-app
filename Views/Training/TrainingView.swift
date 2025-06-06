@@ -143,50 +143,72 @@ struct TrainingView: View {
     
     // MARK: - 퀴즈 뷰
     private var quizView: some View {
-        VStack(spacing: 30) {
-            Spacer()
-            
-            // 문제
-            VStack(spacing: 16) {
-                Text("문제")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
+        VStack(spacing: 0) {
+            // 문제 영역
+            VStack(spacing: 30) {
+                Spacer()
                 
-                Text(currentFlashcard?.front ?? "")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-            
-            Spacer()
-            
-            // 답 입력
-            VStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("답안 입력")
+                // 문제
+                VStack(spacing: 16) {
+                    Text("문제")
                         .font(.headline)
-                        .fontWeight(.semibold)
+                        .foregroundColor(.secondary)
                     
-                    TextField("정답을 입력하세요", text: $userAnswer)
-                        .textFieldStyle(.roundedBorder)
-                        .font(.title2)
+                    Text(currentFlashcard?.front ?? "")
+                        .font(.title)
+                        .fontWeight(.bold)
                         .multilineTextAlignment(.center)
-                        .submitLabel(.done)
-                        .onSubmit {
-                            checkAnswer()
-                        }
+                        .padding(.horizontal)
                 }
                 
-                Button("정답 확인") {
-                    checkAnswer()
+                Spacer()
+                
+                // 답 입력
+                VStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("답안 입력")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                        
+                        TextField("정답을 입력하세요", text: $userAnswer)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                checkAnswer()
+                            }
+                    }
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .padding(.horizontal)
+                
+                Spacer()
             }
-            .padding(.horizontal)
             
-            Spacer()
+            // 하단 고정 버튼 (QuizResultView와 동일한 위치)
+            Button(action: checkAnswer) {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title2)
+                    Text("정답 확인")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.blue, Color.blue.opacity(0.8)]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .cornerRadius(16)
+                .shadow(color: Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 40)
         }
     }
     
