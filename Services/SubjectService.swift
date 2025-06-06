@@ -87,7 +87,7 @@ class SubjectService: ObservableObject {
         try await subjectsCollectionRef.document(subjectId).updateData([
             "cardCount": cardCount
         ])
-        print("✅ 과목 카드 개수 업데이트: \(subjectId) -> \(cardCount)개")
+        print("✅ 과목 퀴즈 개수 업데이트: \(subjectId) -> \(cardCount)개")
     }
 
     func deleteSubject(_ subject: Subject) async throws {

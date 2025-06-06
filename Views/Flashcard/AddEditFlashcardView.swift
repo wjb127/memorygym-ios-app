@@ -8,7 +8,7 @@ struct AddEditFlashcardView: View {
     @StateObject private var viewModel: AddEditFlashcardViewModel
     
     private var navigationTitle: String {
-        viewModel.isEditing ? "카드 수정" : "새 카드 추가"
+        viewModel.isEditing ? "퀴즈 수정" : "새 퀴즈 추가"
     }
     
     init(flashcardToEdit: Flashcard? = nil, subjectID: String, flashcardService: FlashcardService) {
@@ -22,9 +22,9 @@ struct AddEditFlashcardView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("카드 내용")) {
+                Section(header: Text("퀴즈 내용")) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("앞면")
+                        Text("문제")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         TextField("예: 집중하다", text: $viewModel.front)
@@ -32,7 +32,7 @@ struct AddEditFlashcardView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("뒷면")
+                        Text("정답")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         TextField("예: concentrate", text: $viewModel.back)
@@ -62,7 +62,7 @@ struct AddEditFlashcardView: View {
                 
                 if viewModel.isEditing {
                     Section {
-                        Button("카드 삭제", role: .destructive, action: {
+                        Button("퀴즈 삭제", role: .destructive, action: {
                             viewModel.showDeleteConfirm = true
                         })
                     }
@@ -77,7 +77,7 @@ struct AddEditFlashcardView: View {
                     }
                 }
             }
-            .alert("이 카드를 삭제하시겠습니까?", isPresented: $viewModel.showDeleteConfirm) {
+            .alert("이 퀴즈를 삭제하시겠습니까?", isPresented: $viewModel.showDeleteConfirm) {
                 Button("삭제", role: .destructive, action: delete)
                 Button("취소", role: .cancel) { }
             } message: {

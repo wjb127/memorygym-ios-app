@@ -258,6 +258,8 @@ struct QuizManagementView: View {
     @State private var showAddEditFlashcardSheet = false
     @State private var flashcardToEdit: Flashcard?
     @State private var showLoginSheet = false
+    @State private var showFlashcardActionSheet = false
+    @State private var selectedFlashcard: Flashcard?
     
     var body: some View {
         NavigationView {
@@ -308,6 +310,18 @@ struct QuizManagementView: View {
             .sheet(isPresented: $showLoginSheet) {
                 LoginView()
                     .environmentObject(authManager)
+            }
+            .confirmationDialog("퀴즈 옵션", isPresented: $showFlashcardActionSheet, presenting: selectedFlashcard) { flashcard in
+                Button("수정") {
+                    flashcardToEdit = flashcard
+                    showAddEditFlashcardSheet = true
+                }
+                Button("삭제", role: .destructive) {
+                    deleteFlashcard(flashcard)
+                }
+                Button("취소", role: .cancel) { }
+            } message: { flashcard in
+                Text("'\(flashcard.front)' 퀴즈를 어떻게 하시겠습니까?")
             }
         }
     }
@@ -376,7 +390,7 @@ struct QuizManagementView: View {
                             HStack {
                                 Text(subject.name)
                                 Spacer()
-                                Text("\(subject.cardCount)장")
+                                Text("\(subject.cardCount)문제")
                                     .foregroundColor(.secondary)
                             }
                         }
@@ -405,11 +419,11 @@ struct QuizManagementView: View {
     private var flashcardListView: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("\(selectedSubject?.name ?? "과목") 카드")
+                Text("\(selectedSubject?.name ?? "과목") 퀴즈")
                     .font(.headline)
                     .fontWeight(.semibold)
                 Spacer()
-                Text("\(flashcardService.flashcards.count)장")
+                Text("\(flashcardService.flashcards.count)문제")
                     .foregroundColor(.secondary)
             }
             
@@ -418,16 +432,16 @@ struct QuizManagementView: View {
                     Image(systemName: "rectangle.stack.badge.plus")
                         .font(.system(size: 50))
                         .foregroundColor(.gray)
-                    Text("아직 카드가 없습니다")
+                    Text("아직 퀴즈가 없습니다")
                         .font(.title3)
                         .fontWeight(.medium)
-                    Text("첫 번째 카드를 추가해보세요!")
+                    Text("첫 번째 퀴즈를 추가해보세요!")
                         .foregroundColor(.secondary)
                     Button(action: {
                         flashcardToEdit = nil
                         showAddEditFlashcardSheet = true
                     }) {
-                        Label("카드 추가", systemImage: "plus.circle.fill")
+                        Label("퀴즈 추가", systemImage: "plus.circle.fill")
                     }
                     .buttonStyle(.borderedProminent)
                 }
@@ -437,8 +451,8 @@ struct QuizManagementView: View {
                 List {
                     ForEach(flashcardService.flashcards) { flashcard in
                         FlashcardRowView(flashcard: flashcard) {
-                            flashcardToEdit = flashcard
-                            showAddEditFlashcardSheet = true
+                            selectedFlashcard = flashcard
+                            showFlashcardActionSheet = true
                         }
                     }
                 }
@@ -457,7 +471,7 @@ struct QuizManagementView: View {
             Text("과목을 선택해주세요")
                 .font(.title2)
                 .fontWeight(.semibold)
-            Text("위의 드롭다운에서 관리할 과목을 선택하면\n해당 과목의 퀴즈 카드들을 확인하고 편집할 수 있습니다.")
+            Text("위의 드롭다운에서 관리할 과목을 선택하면\n해당 과목의 퀴즈들을 확인하고 편집할 수 있습니다.")
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -474,7 +488,7 @@ struct QuizManagementView: View {
             Text("로그인 필요")
                 .font(.title)
                 .fontWeight(.bold)
-            Text("퀴즈 카드를 관리하려면 로그인이 필요해요.")
+            Text("퀴즈를 관리하려면 로그인이 필요해요.")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -484,6 +498,18 @@ struct QuizManagementView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+        }
+    }
+    
+    // MARK: - Helper Methods
+    private func deleteFlashcard(_ flashcard: Flashcard) {
+        Task {
+            do {
+                try await flashcardService.deleteFlashcard(flashcard)
+                print("✅ 퀴즈 삭제 완료: \(flashcard.front)")
+            } catch {
+                print("❌ 퀴즈 삭제 실패: \(error.localizedDescription)")
+            }
         }
     }
 }

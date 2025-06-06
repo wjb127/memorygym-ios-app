@@ -6,7 +6,7 @@ struct Subject: Identifiable, Codable, Hashable {
     var name: String
     var description: String
     var userId: String
-    var cardCount: Int = 0
+    var cardCount: Int = 0  // 퀴즈 개수
     var createdAt: Timestamp = Timestamp(date: Date())
     var lastStudied: Timestamp?
 } 
