@@ -34,6 +34,7 @@ struct MemoryTrainingView: View {
     @State private var showAddEditSubjectSheet = false
     @State private var subjectToEdit: Subject?
     @State private var showLoginSheet = false
+    @State private var hasPerformedInitialSync = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -47,6 +48,18 @@ struct MemoryTrainingView: View {
                                     print("   ➤ AuthManager.user.id: \(user.id)")
                                     print("   ➤ 이 ID로 subjects 쿼리 실행...")
                                     subjectService.fetchSubjects(forUserID: user.id)
+                                    
+                                    // 한 번만 cardCount 동기화 실행
+                                    if !hasPerformedInitialSync {
+                                        hasPerformedInitialSync = true
+                                        Task {
+                                            do {
+                                                try await subjectService.syncAllSubjectCardCounts(forUserID: user.id)
+                                            } catch {
+                                                print("❌ cardCount 동기화 실패: \(error.localizedDescription)")
+                                            }
+                                        }
+                                    }
                                 }
                         }
                     } else {
@@ -69,6 +82,13 @@ struct MemoryTrainingView: View {
             if authManager.isSignedIn {
                 startButton
                     .padding(.bottom, 10)
+            }
+        }
+        .onChange(of: authManager.isSignedIn) { isSignedIn in
+            // 로그아웃 시 동기화 플래그 리셋
+            if !isSignedIn {
+                hasPerformedInitialSync = false
+                selectedSubject = nil
             }
         }
     }

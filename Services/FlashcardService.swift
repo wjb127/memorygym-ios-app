@@ -10,6 +10,9 @@ class FlashcardService: ObservableObject {
     private var flashcardsCollectionRef: CollectionReference {
         return db.collection("flashcards")
     }
+    private var subjectsCollectionRef: CollectionReference {
+        return db.collection("subjects")
+    }
     
     private var listenerRegistration: ListenerRegistration?
     
@@ -53,6 +56,11 @@ class FlashcardService: ObservableObject {
                 
                 self.flashcards = flashcards
                 print("🎯 최종 결과: \(self.flashcards.count)개 플래시카드 로드 완료")
+                
+                // 과목의 cardCount 업데이트
+                Task {
+                    await self.updateSubjectCardCount(subjectID: subjectID, cardCount: flashcards.count)
+                }
             }
     }
     
@@ -67,6 +75,10 @@ class FlashcardService: ObservableObject {
         
         let docRef = try flashcardsCollectionRef.addDocument(from: newFlashcard)
         print("✅ 플래시카드 추가 성공: \(front) -> \(back)")
+        
+        // 과목의 cardCount 업데이트
+        await updateSubjectCardCountFromFirestore(subjectID: subjectID, userID: userID)
+        
         return docRef.documentID
     }
     
@@ -86,6 +98,9 @@ class FlashcardService: ObservableObject {
         }
         try await flashcardsCollectionRef.document(documentID).delete()
         print("✅ 플래시카드 삭제 성공: \(flashcard.front)")
+        
+        // 과목의 cardCount 업데이트
+        await updateSubjectCardCountFromFirestore(subjectID: flashcard.subjectId, userID: flashcard.userId)
     }
 
     /// 플래시카드 일괄 생성 (초기 데이터용)
@@ -101,6 +116,42 @@ class FlashcardService: ObservableObject {
         
         try await batch.commit()
         print("✅ 플래시카드 일괄 생성 완료: \(flashcards.count)개")
+        
+        // 일괄 생성 후 각 과목의 cardCount 업데이트
+        let subjectGroups = Dictionary(grouping: flashcards) { $0.subjectId }
+        for (subjectID, cards) in subjectGroups {
+            if let firstCard = cards.first {
+                await updateSubjectCardCountFromFirestore(subjectID: subjectID, userID: firstCard.userId)
+            }
+        }
+    }
+    
+    /// Firestore에서 실제 플래시카드 개수를 세어서 과목의 cardCount 업데이트
+    private func updateSubjectCardCountFromFirestore(subjectID: String, userID: String) async {
+        do {
+            let querySnapshot = try await flashcardsCollectionRef
+                .whereField("userId", isEqualTo: userID)
+                .whereField("subjectId", isEqualTo: subjectID)
+                .getDocuments()
+            
+            let actualCount = querySnapshot.documents.count
+            await updateSubjectCardCount(subjectID: subjectID, cardCount: actualCount)
+            
+        } catch {
+            print("❌ 플래시카드 개수 조회 실패: \(error.localizedDescription)")
+        }
+    }
+    
+    /// 과목의 cardCount 업데이트 (SubjectService 기능 복제)
+    private func updateSubjectCardCount(subjectID: String, cardCount: Int) async {
+        do {
+            try await subjectsCollectionRef.document(subjectID).updateData([
+                "cardCount": cardCount
+            ])
+            print("✅ 과목 퀴즈 개수 자동 업데이트: \(subjectID) -> \(cardCount)개")
+        } catch {
+            print("❌ 과목 퀴즈 개수 업데이트 실패: \(error.localizedDescription)")
+        }
     }
     
     // 리스너 해제

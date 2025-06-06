@@ -90,6 +90,39 @@ class SubjectService: ObservableObject {
         print("✅ 과목 퀴즈 개수 업데이트: \(subjectId) -> \(cardCount)개")
     }
 
+    /// 모든 과목의 cardCount를 실제 플래시카드 개수와 동기화
+    func syncAllSubjectCardCounts(forUserID userID: String) async throws {
+        print("🔄 과목별 퀴즈 개수 동기화 시작...")
+        
+        // 사용자의 모든 과목 조회
+        let subjectsSnapshot = try await subjectsCollectionRef
+            .whereField("userId", isEqualTo: userID)
+            .getDocuments()
+        
+        for subjectDoc in subjectsSnapshot.documents {
+            let subjectId = subjectDoc.documentID
+            
+            // 해당 과목의 플래시카드 개수 조회
+            let flashcardsSnapshot = try await db.collection("flashcards")
+                .whereField("userId", isEqualTo: userID)
+                .whereField("subjectId", isEqualTo: subjectId)
+                .getDocuments()
+            
+            let actualCount = flashcardsSnapshot.documents.count
+            
+            // cardCount 업데이트
+            try await subjectsCollectionRef.document(subjectId).updateData([
+                "cardCount": actualCount
+            ])
+            
+            if let subjectData = try? subjectDoc.data(as: Subject.self) {
+                print("✅ 과목 '\(subjectData.name)' 퀴즈 개수 동기화: \(actualCount)개")
+            }
+        }
+        
+        print("🎉 모든 과목의 퀴즈 개수 동기화 완료")
+    }
+
     func deleteSubject(_ subject: Subject) async throws {
         guard let documentID = subject.id else {
             throw NSError(domain: "SubjectService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Subject ID is nil"])
