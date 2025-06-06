@@ -40,6 +40,7 @@ struct MemoryTrainingView: View {
     @State private var subjectToEdit: Subject?
     @State private var showLoginSheet = false
     @State private var hasPerformedInitialSync = false
+    @State private var showTrainingLevelSheet = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -175,9 +176,8 @@ struct MemoryTrainingView: View {
     // MARK: - Start Button
     private var startButton: some View {
         Button(action: {
-            // TODO: 암기 훈련 시작 로직
-            if let subject = selectedSubject {
-                print("\(subject.name) 암기훈련을 시작합니다.")
+            if selectedSubject != nil {
+                showTrainingLevelSheet = true
             }
         }) {
             Text(selectedSubject == nil ? "과목을 선택해주세요" : "암기훈련을 시작합니다")
@@ -191,6 +191,12 @@ struct MemoryTrainingView: View {
         .disabled(selectedSubject == nil)
         .padding(.horizontal)
         .shadow(radius: 5)
+        .sheet(isPresented: $showTrainingLevelSheet) {
+            if let subject = selectedSubject {
+                TrainingLevelSelectionView(subject: subject)
+                    .environmentObject(authManager)
+            }
+        }
     }
 }
 
@@ -780,4 +786,169 @@ private struct SettingsRowView: View {
 #Preview {
     ContentView()
         .environmentObject(AuthenticationManager())
+}
+
+// MARK: - Training Level Selection View
+struct TrainingLevelSelectionView: View {
+    @EnvironmentObject var authManager: AuthenticationManager
+    @Environment(\.dismiss) private var dismiss
+    
+    let subject: Subject
+    @State private var selectedLevel: Int = 1
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                // 헤더
+                VStack(spacing: 8) {
+                    Text("훈련 단계 선택")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    Text("\(subject.name)")
+                        .font(.headline)
+                        .foregroundColor(.blue)
+                    
+                    Text("원하는 난이도의 훈련소를 선택하세요")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top)
+                
+                Spacer()
+                
+                // 단계 선택 리스트
+                VStack(spacing: 12) {
+                    ForEach(1...5, id: \.self) { level in
+                        TrainingLevelRow(
+                            level: level,
+                            isSelected: selectedLevel == level
+                        ) {
+                            selectedLevel = level
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                
+                Spacer()
+                
+                // 시작 버튼
+                Button(action: {
+                    startTraining(level: selectedLevel)
+                }) {
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("\(selectedLevel)단계 훈련 시작")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                .padding(.horizontal)
+                .padding(.bottom)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("취소") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func startTraining(level: Int) {
+        // TODO: 선택된 난이도의 암기 훈련 시작
+        print("🎯 \(subject.name) - \(level)단계 훈련 시작!")
+        print("   ➤ 난이도 \(level) 플래시카드로 훈련 진행")
+        dismiss()
+    }
+}
+
+// MARK: - Training Level Row
+private struct TrainingLevelRow: View {
+    let level: Int
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(level)단계 훈련소")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                    
+                    Text(levelDescription)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 8) {
+                    difficultyBadge
+                    
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.blue)
+                            .font(.title2)
+                    } else {
+                        Image(systemName: "circle")
+                            .foregroundColor(.gray)
+                            .font(.title2)
+                    }
+                }
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? Color.blue.opacity(0.1) : Color(.systemBackground))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isSelected ? Color.blue : Color(.systemGray4), lineWidth: isSelected ? 2 : 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+    
+    private var levelDescription: String {
+        switch level {
+        case 1: return "가장 쉬운 문제들로 기초 실력 향상"
+        case 2: return "약간의 도전이 있는 문제들"
+        case 3: return "중간 난이도의 문제들"
+        case 4: return "어려운 문제들로 실력 향상"
+        case 5: return "가장 어려운 문제들로 최고 수준 도달"
+        default: return "일반 난이도"
+        }
+    }
+    
+    @ViewBuilder
+    private var difficultyBadge: some View {
+        let (text, color) = difficultyInfo
+        Text(text)
+            .font(.caption)
+            .fontWeight(.medium)
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Capsule().fill(color))
+    }
+    
+    private var difficultyInfo: (String, Color) {
+        switch level {
+        case 1: return ("입문", .green)
+        case 2: return ("초급", .mint)
+        case 3: return ("중급", .orange)
+        case 4: return ("고급", .red)
+        case 5: return ("최고급", .purple)
+        default: return ("보통", .gray)
+        }
+    }
 } 
