@@ -2,11 +2,37 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var authManager: AuthenticationManager
+
+    var body: some View {
+        TabView {
+            MemoryTrainingView()
+                .tabItem {
+                    Label("암기훈련", systemImage: "brain.head.profile")
+                }
+            
+            QuizManagementView()
+                .tabItem {
+                    Label("퀴즈관리", systemImage: "questionmark.diamond")
+                }
+
+            StatisticsView()
+                .tabItem {
+                    Label("통계", systemImage: "chart.bar.xaxis")
+                }
+        }
+    }
+}
+
+// MARK: - 탭별 뷰
+
+/// 1. 암기훈련 탭
+struct MemoryTrainingView: View {
+    @EnvironmentObject var authManager: AuthenticationManager
     @State private var showLoginSheet = false
-    
+
     var body: some View {
         NavigationView {
-            MainView(showLoginSheet: $showLoginSheet)
+            MainContentView(showLoginSheet: $showLoginSheet)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -48,7 +74,44 @@ struct ContentView: View {
     }
 }
 
-struct MainView: View {
+/// 2. 퀴즈관리 탭 (플레이스홀더)
+struct QuizManagementView: View {
+    var body: some View {
+        NavigationView {
+            VStack {
+                Text("퀴즈 관리")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                Text("이 곳에서 나만의 퀴즈를 만들고 관리할 수 있습니다.")
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding()
+            .navigationTitle("퀴즈관리")
+        }
+    }
+}
+
+/// 3. 통계 탭 (플레이스홀더)
+struct StatisticsView: View {
+    var body: some View {
+        NavigationView {
+            VStack {
+                Text("학습 통계")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                Text("학습 진행 상황과 성과를 확인할 수 있습니다.")
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding()
+            .navigationTitle("통계")
+        }
+    }
+}
+
+// 기존 MainView의 이름을 MainContentView로 변경하여 재사용
+struct MainContentView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @Binding var showLoginSheet: Bool
     
@@ -146,7 +209,7 @@ struct MainView: View {
                 Spacer(minLength: 20)
             }
         }
-        .navigationTitle("암기훈련소")
+        .navigationTitle("암기훈련")
     }
 }
 

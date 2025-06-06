@@ -61,6 +61,45 @@ struct SplashView: View {
     }
 }
 
+struct MainMenuView: View {
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 30) {
+                Text("게스트 모드로 체험 중")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                
+                VStack(spacing: 20) {
+                    Button("단어 암기 (체험 가능)") {
+                        // 게스트 모드 기능
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    
+                    Button("🔒 고급 기능 (로그인 필요)") {
+                        // 로그인 필요 기능
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .disabled(true)
+                }
+                
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("암기훈련소")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("로그인") {
+                        // 로그인 기능
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
+        }
+    }
+}
+
 // MARK: - App State (사용하지 않음 - 호환성을 위해 유지)
 @MainActor
 class AppState: ObservableObject {
