@@ -1,169 +1,70 @@
-# MemoryGym iOS 앱
+# 암기훈련소 (MemoryGym) iOS App
 
-## 프로젝트 개요
-MemoryGym은 플래시카드 기반 학습 앱으로, 간격 반복 학습법을 사용한 암기 훈련 앱입니다.
+스마트한 플래시카드 학습 앱으로 간격 반복 학습법을 활용한 효율적인 암기 훈련을 제공합니다.
 
 ## 주요 기능
 
-### 1. 인증 시스템 ✅
-- **게스트 모드**: 로그인 없이 체험 가능 (로컬 데이터 사용)
-- **Apple 로그인**: iOS 필수 요구사항 완료 🍎
-- **Google 로그인**: Firebase Authentication 연동 (추후 구현)
+- 🧠 **스마트 학습 시스템**: 정답/오답에 따른 자동 난이도 조절 (Lv1~Lv5)
+- 📚 **과목별 관리**: 과목 생성 및 플래시카드 관리
+- 🎯 **단계별 훈련**: 레벨별 맞춤 훈련 모드
+- 📊 **학습 통계**: 정답률 및 학습 진행 상황 추적
+- 🔐 **Google/Apple 로그인**: 안전한 사용자 인증
+- 📱 **모던 UI/UX**: 깔끔하고 직관적인 사용자 인터페이스
 
-### 2. 핵심 기능
-- **암기훈련**: 플래시카드 기반 학습
-- **퀴즈관리**: 플래시카드 CRUD 기능
-- **과목관리**: 과목별 플래시카드 분류
-- **간격 반복 학습법**: 5단계 박스 시스템
+## 설정 방법
 
-### 3. 게스트 모드
-- 중급 영단어 50개 제공
-- 로그인 없이 모든 기능 체험 가능
+### 1. 프로젝트 복제
+```bash
+git clone https://github.com/wjb127/memorygym-ios-app.git
+cd memorygym-ios-app
+```
 
-### 4. 사용자 관리 🆕
-- **프로필 관리**: 사용자 정보 표시
-- **로그아웃 기능**: 안전한 세션 종료
-- **계정 타입 표시**: 게스트/로그인 사용자 구분
+### 2. Firebase 설정
+1. [Firebase Console](https://console.firebase.google.com/)에서 새 프로젝트 생성
+2. iOS 앱 추가 (Bundle ID: `com.memorygym.app`)
+3. `GoogleService-Info.plist` 파일 다운로드
+4. 다운로드한 파일을 프로젝트 루트에 복사 (`.gitignore`에 의해 Git 추적되지 않음)
 
-## 기술 스택
-- **언어**: Swift 5.9+
-- **UI**: SwiftUI
-- **아키텍처**: MVVM 패턴
-- **상태관리**: @Observable
-- **인증**: AuthenticationServices (Apple 로그인)
-- **보안**: CryptoKit (SHA256 해싱)
-- **최소 지원**: iOS 15.0+
+### 3. CocoaPods 설치
+```bash
+pod install
+```
+
+### 4. Xcode에서 실행
+```bash
+open MemoryGym.xcworkspace
+```
 
 ## 프로젝트 구조
+
 ```
-memorygym-swift-app/
-├── Models/
-│   ├── User.swift
-│   ├── Subject.swift
-│   └── Flashcard.swift
-├── Views/
-│   ├── SplashView.swift
-│   ├── LoginView.swift
-│   ├── MainTabView.swift
-│   ├── StudyView.swift
-│   ├── FlashcardManagementView.swift
-│   ├── SubjectManagementView.swift
-│   └── Components/
-│       ├── FlashcardView.swift
-│       ├── AppleSignInButton.swift
-│       └── UserProfileView.swift
-├── Managers/
-│   ├── DataManager.swift
-│   └── AuthenticationManager.swift
-├── Data/
-│   └── GuestData.swift
-├── Utils/
-│   └── DesignSystem.swift
-├── Assets.xcassets/
-├── Preview Content/
-├── MemoryGymApp.swift
-├── ContentView.swift
-├── Info.plist
-├── README.md
-└── APPLE_SIGNIN_SETUP.md
+MemoryGym/
+├── Models/           # 데이터 모델 (Subject, Flashcard)
+├── Services/         # Firebase 서비스 (Auth, Firestore)
+├── Views/           # SwiftUI 뷰
+│   ├── Training/    # 암기 훈련 관련 뷰
+│   ├── Subject/     # 과목 관리 뷰
+│   └── Flashcard/   # 플래시카드 관리 뷰
+├── Data/            # 초기 데이터 (중급 영단어)
+└── Assets.xcassets  # 앱 리소스
 ```
 
-## 설치 및 실행
+## 기술 스택
 
-### 요구사항
-- Xcode 15.0+
-- iOS 15.0+
-- macOS 14.0+
-- Apple Developer Account (Apple 로그인 테스트용)
+- **프레임워크**: SwiftUI, UIKit
+- **백엔드**: Firebase (Auth, Firestore)
+- **의존성 관리**: CocoaPods
+- **프로젝트 생성**: XcodeGen
+- **최소 지원 버전**: iOS 15.0+
 
-### 실행 방법
-1. Xcode에서 프로젝트 열기
-2. Signing & Capabilities에서 "Sign in with Apple" 추가
-3. Bundle Identifier 설정
-4. 시뮬레이터 또는 실제 기기 선택
-5. ⌘+R로 빌드 및 실행
+## 개발 팀
 
-### Apple 로그인 설정
-자세한 설정 방법은 [APPLE_SIGNIN_SETUP.md](APPLE_SIGNIN_SETUP.md) 참조
-
-## 개발 현황
-
-### Phase 1: 기본 구조 ✅
-- [x] 프로젝트 설정 (SwiftUI)
-- [x] 네비게이션 구조
-- [x] 게스트 모드 구현 (로컬 데이터)
-- [x] 기본 UI 컴포넌트
-- [x] 디자인 시스템
-
-### Phase 2: 핵심 기능 ✅
-- [x] 플래시카드 학습 로직
-- [x] Apple 로그인 구현 🍎
-- [x] 사용자 프로필 관리
-- [x] 인증 시스템 기반 구조
-- [ ] Firebase 연동
-- [ ] Google 로그인
-- [ ] 데이터 동기화
-
-### Phase 3: 고급 기능 (예정)
-- [ ] AdMob 광고
-- [ ] 간격 반복 알고리즘 개선
-- [ ] 통계 및 진도 추적
-- [ ] 앱 스토어 최적화
-
-## 🍎 Apple 로그인 기능
-
-### 구현된 기능
-- **보안 인증**: Nonce 기반 보안 + SHA256 해싱
-- **사용자 관리**: Apple ID 정보 연동
-- **에러 처리**: 사용자 친화적 오류 메시지
-- **상태 관리**: 로그인/로그아웃 상태 추적
-
-### App Store 정책 준수
-- ✅ Apple 로그인 제공 (필수)
-- ✅ 게스트 모드 지원
-- ✅ 개인정보 처리방침 설정
-- ✅ 사용자 권한 명시
-
-## 테스트 가이드
-
-### 기본 기능 테스트
-1. **게스트 모드**: 로그인 없이 모든 기능 사용
-2. **Apple 로그인**: Apple ID로 로그인/로그아웃
-3. **플래시카드 학습**: 암기훈련 기능
-4. **데이터 관리**: 과목/카드 추가/삭제
-
-### Apple 로그인 테스트
-1. **성공 시나리오**: 로그인 → 프로필 확인 → 로그아웃
-2. **취소 시나리오**: 로그인 취소 → 오류 메시지 확인
-3. **재로그인**: 로그아웃 후 재로그인 테스트
+개발: [Your Name]
 
 ## 라이선스
-MIT License
 
-## 기여하기
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AppleSignIn`)
-3. Commit your Changes (`git commit -m 'Add Apple Sign In'`)
-4. Push to the Branch (`git push origin feature/AppleSignIn`)
-5. Open a Pull Request
-
-## 연락처
-프로젝트 관련 문의: [이메일 주소]
+이 프로젝트는 개인 학습 목적으로 개발되었습니다.
 
 ---
 
-## 🎉 최신 업데이트 (Apple 로그인 추가)
-
-### 새로운 기능
-- **Apple 로그인**: App Store 정책 준수를 위한 필수 기능
-- **사용자 프로필**: 로그인 사용자 정보 관리
-- **보안 강화**: 암호화 기반 인증 시스템
-- **UX 개선**: 직관적인 로그인/로그아웃 플로우
-
-### 기술적 개선
-- **AuthenticationManager**: 통합 인증 관리 시스템
-- **보안 토큰**: Nonce + SHA256 해싱
-- **상태 관리**: Combine 기반 반응형 UI
-- **에러 핸들링**: 사용자 친화적 오류 처리
-
-이제 MemoryGym은 Apple 로그인을 완전히 지원하며, App Store 출시 준비가 완료되었습니다! 🚀 
+⚠️ **중요**: `GoogleService-Info.plist` 파일은 보안상 Git에 포함되지 않습니다. 위의 설정 방법을 따라 Firebase에서 직접 다운로드해주세요. 
