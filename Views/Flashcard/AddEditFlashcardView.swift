@@ -40,18 +40,7 @@ struct AddEditFlashcardView: View {
                     }
                 }
                 
-                Section(header: Text("설정")) {
-                    HStack {
-                        Text("난이도")
-                        Spacer()
-                        Picker("난이도", selection: $viewModel.difficulty) {
-                            Text("쉬움").tag(1)
-                            Text("보통").tag(2)
-                            Text("어려움").tag(3)
-                        }
-                        .pickerStyle(.segmented)
-                    }
-                }
+
                 
                 Section {
                     Button(action: save) {
@@ -142,7 +131,8 @@ class AddEditFlashcardViewModel: ObservableObject {
         if let flashcard = flashcardToEdit {
             self.front = flashcard.front
             self.back = flashcard.back
-            self.difficulty = flashcard.difficulty
+            // 난이도는 항상 1로 고정 (학습단계 1)
+            self.difficulty = 1
         }
     }
     
@@ -151,7 +141,8 @@ class AddEditFlashcardViewModel: ObservableObject {
             if var flashcard = flashcardToEdit {
                 flashcard.front = front
                 flashcard.back = back
-                flashcard.difficulty = difficulty
+                // 난이도는 항상 1로 고정 (학습단계 1)
+                flashcard.difficulty = 1
                 try await flashcardService.updateFlashcard(flashcard)
             } else {
                 _ = try await flashcardService.addFlashcard(
