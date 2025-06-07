@@ -31,7 +31,7 @@ struct MemoryGymApp: App {
             }
             .animation(.easeInOut(duration: 0.5), value: showSplash)
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     showSplash = false
                 }
             }
@@ -43,20 +43,53 @@ struct MemoryGymApp: App {
 }
 
 struct SplashView: View {
+    @State private var isAnimating = false
+    
     var body: some View {
         ZStack {
-            Color.blue.ignoresSafeArea()
+            // 테마 그라데이션 배경
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.98, green: 0.35, blue: 0.45),
+                    Color(red: 0.95, green: 0.38, blue: 0.42),
+                    Color(red: 0.92, green: 0.40, blue: 0.48)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
             
-            VStack {
-                Image(systemName: "graduationcap.fill")
-                    .font(.system(size: 80))
+            VStack(spacing: 20) {
+                // 덤벨 아이콘 - 스크린샷과 동일한 모티브
+                Image(systemName: "dumbbell.fill")
+                    .font(.system(size: 100))
                     .foregroundColor(.white)
+                    .scaleEffect(isAnimating ? 1.1 : 1.0)
+                    .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isAnimating)
                 
-                Text("암기훈련소")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
+                VStack(spacing: 8) {
+                    Text("암기훈련소")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Text("MemoryGym")
+                        .font(.title2)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white.opacity(0.9))
+                }
+                .opacity(isAnimating ? 1.0 : 0.7)
+                .animation(.easeInOut(duration: 1.5).delay(0.3), value: isAnimating)
+                
+                // 로딩 인디케이터
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.2)
+                    .padding(.top, 20)
             }
+        }
+        .onAppear {
+            isAnimating = true
         }
     }
 }
