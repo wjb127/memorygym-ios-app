@@ -8,17 +8,17 @@ struct ContentView: View {
         TabView {
             MemoryTrainingView()
                 .tabItem {
-                    Label("암기훈련", systemImage: "brain.head.profile")
+                    Label("암기훈련", systemImage: "dumbbell.fill")
                 }
             
             QuizManagementView()
                 .tabItem {
-                    Label("퀴즈관리", systemImage: "questionmark.diamond")
+                    Label("퀴즈관리", systemImage: "questionmark.diamond.fill")
                 }
 
             StatisticsView()
                 .tabItem {
-                    Label("통계", systemImage: "chart.bar.xaxis")
+                    Label("통계", systemImage: "chart.bar.fill")
                 }
             
             SettingsView()
@@ -26,6 +26,7 @@ struct ContentView: View {
                     Label("설정", systemImage: "gearshape.fill")
                 }
         }
+        .accentColor(Color(red: 0.95, green: 0.38, blue: 0.42))
     }
 }
 
@@ -115,6 +116,7 @@ struct MemoryTrainingView: View {
             Text("내 과목")
                 .font(.largeTitle)
                 .fontWeight(.bold)
+                .foregroundColor(.primary)
             
             Spacer()
             
@@ -125,7 +127,7 @@ struct MemoryTrainingView: View {
             }) {
                 Image(systemName: "plus.circle.fill")
                     .font(.title2)
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color(red: 0.95, green: 0.38, blue: 0.42))
             }
         }
         .padding(.bottom, 12)
@@ -185,7 +187,18 @@ struct MemoryTrainingView: View {
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(selectedSubject == nil ? Color.gray.opacity(0.5) : Color.blue)
+                .background(
+                    selectedSubject == nil ? 
+                    AnyView(Color.gray.opacity(0.5)) : 
+                    AnyView(LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0.98, green: 0.35, blue: 0.45),
+                            Color(red: 0.95, green: 0.38, blue: 0.42)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ))
+                )
                 .foregroundColor(.white)
                 .cornerRadius(15)
         }
