@@ -91,4 +91,10 @@ iOSInjectionProject/
 
 # Firebase Configuration Files (contains sensitive API keys)
 GoogleService-Info.plist
-GoogleService-Info.plist.backup 
+GoogleService-Info.plist.backup
+
+# VSCode settings
+.vscode/
+
+# Xcode workspace user data
+*.xcworkspace/xcuserdata/ 

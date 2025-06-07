@@ -612,11 +612,11 @@ private struct FlashcardRowView: View {
     
     private var difficultyInfo: (String, Color) {
         switch flashcard.difficulty {
-        case 1: return ("Lv1", .red)        // 가장 어려움 (많은 반복 필요)
-        case 2: return ("Lv2", .orange)     // 어려움
-        case 3: return ("Lv3", .yellow)     // 보통
-        case 4: return ("Lv4", .mint)       // 쉬움
-        case 5: return ("Lv5", .green)      // 가장 쉬움 (적은 반복 필요)
+        case 1: return ("Lv1", .red)        // 학습 초기 단계 (많은 반복 필요)
+        case 2: return ("Lv2", .orange)     // 학습 진행 중
+        case 3: return ("Lv3", .yellow)     // 학습 중간 단계
+        case 4: return ("Lv4", .mint)       // 학습 완료 직전
+        case 5: return ("Lv5", .green)      // 학습 완료 단계 (장기 기억)
         default: return ("Lv1", .gray)
         }
     }
@@ -795,10 +795,12 @@ private struct SettingsRowView: View {
 struct TrainingLevelSelectionView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var flashcardService = FlashcardService()
     
     let subject: Subject
     @State private var selectedLevel: Int = 1
     @State private var showTrainingView = false
+    @State private var flashcardCounts = [Int: Int]() // 단계별 플래시카드 개수
     
     var body: some View {
         NavigationView {
@@ -813,7 +815,7 @@ struct TrainingLevelSelectionView: View {
                         .font(.headline)
                         .foregroundColor(.blue)
                     
-                    Text("원하는 난이도의 훈련소를 선택하세요")
+                    Text("원하는 단계의 훈련소를 선택하세요")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -827,7 +829,8 @@ struct TrainingLevelSelectionView: View {
                     ForEach(1...5, id: \.self) { level in
                         TrainingLevelRow(
                             level: level,
-                            isSelected: selectedLevel == level
+                            isSelected: selectedLevel == level,
+                            cardCount: flashcardCounts[level] ?? 0
                         ) {
                             selectedLevel = level
                         }
@@ -863,6 +866,9 @@ struct TrainingLevelSelectionView: View {
                     }
                 }
             }
+            .onAppear {
+                loadFlashcardsAndCalculateCounts()
+            }
         }
         .fullScreenCover(isPresented: $showTrainingView) {
             TrainingView(subject: subject, difficulty: selectedLevel)
@@ -872,8 +878,29 @@ struct TrainingLevelSelectionView: View {
     
     private func startTraining(level: Int) {
         print("🎯 \(subject.name) - \(level)단계 훈련 시작!")
-        print("   ➤ 난이도 \(level) 플래시카드로 훈련 진행")
+        print("   ➤ 학습 단계 \(level) 플래시카드로 훈련 진행")
         showTrainingView = true
+    }
+    
+    private func loadFlashcardsAndCalculateCounts() {
+        guard let user = authManager.user,
+              let subjectId = subject.id else { return }
+        
+        // 해당 과목의 모든 플래시카드 조회
+        flashcardService.fetchFlashcards(forSubjectID: subjectId, userID: user.id)
+        
+        // 단계별 개수 계산
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            var counts = [Int: Int]()
+            
+            for level in 1...5 {
+                let count = flashcardService.flashcards.filter { $0.difficulty == level }.count
+                counts[level] = count
+            }
+            
+            flashcardCounts = counts
+            print("📊 단계별 플래시카드 개수: \(flashcardCounts)")
+        }
     }
 }
 
@@ -881,6 +908,7 @@ struct TrainingLevelSelectionView: View {
 private struct TrainingLevelRow: View {
     let level: Int
     let isSelected: Bool
+    let cardCount: Int
     let action: () -> Void
     
     var body: some View {
@@ -899,6 +927,10 @@ private struct TrainingLevelRow: View {
                 Spacer()
                 
                 HStack(spacing: 8) {
+                    Text("\(cardCount)문제")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
                     difficultyBadge
                     
                     if isSelected {
@@ -927,11 +959,11 @@ private struct TrainingLevelRow: View {
     
     private var levelDescription: String {
         switch level {
-        case 1: return "Lv1 문제들 (많은 연습이 필요한 어려운 문제)"
-        case 2: return "Lv2 문제들 (연습이 필요한 문제)"
-        case 3: return "Lv3 문제들 (보통 수준의 문제)"
-        case 4: return "Lv4 문제들 (익숙한 문제)"
-        case 5: return "Lv5 문제들 (잘 아는 쉬운 문제)"
+        case 1: return "Lv1 문제들 (학습 초기 단계)"
+        case 2: return "Lv2 문제들 (학습 진행 중)"
+        case 3: return "Lv3 문제들 (학습 중간 단계)"
+        case 4: return "Lv4 문제들 (학습 완료 직전)"
+        case 5: return "Lv5 문제들 (학습 완료 단계)"
         default: return "일반 문제"
         }
     }
@@ -950,11 +982,11 @@ private struct TrainingLevelRow: View {
     
     private var difficultyInfo: (String, Color) {
         switch level {
-        case 1: return ("Lv1", .red)        // 가장 어려움 (많은 반복 필요)
-        case 2: return ("Lv2", .orange)     // 어려움
-        case 3: return ("Lv3", .yellow)     // 보통
-        case 4: return ("Lv4", .mint)       // 쉬움
-        case 5: return ("Lv5", .green)      // 가장 쉬움 (적은 반복 필요)
+        case 1: return ("Lv1", .red)        // 학습 초기 단계 (많은 반복 필요)
+        case 2: return ("Lv2", .orange)     // 학습 진행 중
+        case 3: return ("Lv3", .yellow)     // 학습 중간 단계
+        case 4: return ("Lv4", .mint)       // 학습 완료 직전
+        case 5: return ("Lv5", .green)      // 학습 완료 단계 (장기 기억)
         default: return ("Lv1", .gray)
         }
     }
